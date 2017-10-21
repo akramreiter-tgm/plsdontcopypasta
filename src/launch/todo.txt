@@ -1,0 +1,5 @@
+TODO: implement evolve and side decks
+TODO: implement adility to activate active effects from board, hand, grave, removed and deck
+TODO: implement network connectivity, bla bla bla, no problem at all (besides removing Collections, because
+	  they dont get along with Sockets from time to time)
+TODO: build an actual client (get someone create sprites)
