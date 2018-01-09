@@ -73,35 +73,35 @@ public class Placement {
 			t += type.charAt(1) - '0';
 		}
 		if (t == 1) {
-			if (bd.resources.get(p.pName)[0] < Board.groundcost) return;
+			if (bd.resources.get(p.pname)[0] < Board.groundcost) return;
 			boolean placeAv = false;
-			for (String s : getAvailablePlacement(p.pName)) {
+			for (String s : getAvailablePlacement(p.pname)) {
 				if (s.equals(targ)) placeAv = true;
 			}
 			if (placeAv) {
 				Ground g = bd.getGround(targ);
 				g.gType = t;
-				g.owner = p.pName;
-				bd.resources.get(p.pName)[0] -= Board.groundcost;
+				g.owner = p.pname;
+				bd.resources.get(p.pname)[0] -= Board.groundcost;
 				bd.triggerExecutableEffects(p, "groundplaced", new String[] {targ});
 			}
 		} else {
-			if (bd.resources.get(p.pName)[0] < Board.rescost) return;
+			if (bd.resources.get(p.pname)[0] < Board.rescost) return;
 			boolean placeAv = false;
-			for (String s : getAvailableResGround(p.pName)) {
+			for (String s : getAvailableResGround(p.pname)) {
 				if (s.equals(targ)) placeAv = true;
 			}
 			if (placeAv) {
 				Ground g = bd.getGround(targ);
 				g.gType = t;
-				g.owner = p.pName;
-				bd.resources.get(p.pName)[0] -= Board.rescost;
+				g.owner = p.pname;
+				bd.resources.get(p.pname)[0] -= Board.rescost;
 				
-				bd.resources.get(p.pName)[t+1]++;
-				System.out.println(bd.resources.get(p.pName)[3] + "," + bd.resources.get(p.pName)[4] + "," + bd.resources.get(p.pName)[5] + "," + bd.resources.get(p.pName)[6]);
+				bd.resources.get(p.pname)[t+1]++;
+				System.out.println(bd.resources.get(p.pname)[3] + "," + bd.resources.get(p.pname)[4] + "," + bd.resources.get(p.pname)[5] + "," + bd.resources.get(p.pname)[6]);
 				bd.triggerExecutableEffects(p, "resourceplaced", new String[] {targ});
 			}
-			bd.resources.get(p.pName)[t+1]++;
+			bd.resources.get(p.pname)[t+1]++;
 		}
 	}
 }

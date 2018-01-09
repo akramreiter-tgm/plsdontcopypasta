@@ -2,8 +2,7 @@ package protocol.resources.card;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import protocol.resources.Board;
-import protocol.resources.Player;
+import java.util.HashSet;
 
 public abstract class Creature extends Card implements Serializable, Cloneable {
 	private static final long serialVersionUID = -3341280271172621674L;
@@ -13,10 +12,10 @@ public abstract class Creature extends Card implements Serializable, Cloneable {
 	public String mType = "line", aType = "line"; 
 	// mType/aType: line: can move/attack in straight line; free: can attack anything in range (Board.getAdjecent)
 	public boolean shield, taunt, root, stun, terrified, flying;
-	public int moveAv, AtkAv, actEffAv;
+	public int moveAv, AtkAv, actEffAv, bMoveAv = 1, bAtkAv = 1;
 	
 	/**
-	 * 
+	 * calls default Constructor of Card (sets owner field)
 	 * @param (String) own
 	 */
 	public Creature(String own) {
@@ -65,20 +64,22 @@ public abstract class Creature extends Card implements Serializable, Cloneable {
 		this.cHealth = cHealth;
 	}
 	
-	/*
-	 * Damages the creature equal to the given parameter i
+	/**
+	 * Damages (= reduces cHealth) the creature equal to the given parameter i
 	 * if cHealth reaches a value lower than 1 the "dead" field is set to true
 	 */
 	public void damage(int i) {
-		if (shield) return;
+		if (shield) {
+			shield = false;
+			return;
+		}
 		if (i < 0) return;
 		cHealth -= i;
 	}
 	
-	/*
-	 * Heals the creature equal to the given parameter i
+	/**
+	 * Heals (= increases cHealth) the creature equal to the given parameter i
 	 * if cHealth reaches a value higher than bHealth cHealth is set to bHealth
-	 * "dead" is set to false if cHealth is higher than 0
 	 */
 	public void heal(int i) {
 		if (i < 0) return;
@@ -86,46 +87,59 @@ public abstract class Creature extends Card implements Serializable, Cloneable {
 		cHealth += i;
 	}
 	
+	@Override
+	/**
+	 * sets all current values (cAttack, cHealth, cCost) back
+	 * to their base/default values (bAttack, bHealth, bCost)
+	 */
 	public void reset() {
 		cAttack = bAttack;
 		cHealth = bHealth;
 		cCost = bCost;
 	}
 	
-	/*
-	 * checks if an active ability can be triggered (may have Board-specific criteria)
+	/**
+	 * checks if cHealth is 0 or lower 
+	 * (criteria for a Creature to be considered dead)
+	 * @return boolean
 	 */
-	public abstract boolean actEffAvailable(Board b, String ownloc);
-	
 	public boolean isDead() {
 		return cHealth <= 0;
 	}
 	
+	/**
+	 * checks if cHealth is lower than bHealth
+	 * (criteria for a Creature to be considered damaged)
+	 * @return boolean
+	 */
 	public boolean isDamaged() {
 		return cHealth < bHealth;
 	}
 	
+	/**
+	 * produces a deep copy of a Creature
+	 * @return Creature
+	 */
 	public Creature clone() {
 		Creature cl = clone();
-		cl.trigger = new ArrayList<>();
+		cl.trigger = new HashSet<>();
 		cl.remoteEffects = new ArrayList<>();
 		return cl;
 	}
 	
-	/*
-	 * enables movement, attack, abilities (should be executed at turnstart)
+	/**
+	 * enables movement, attack, abilities (should be called at turnstart)
 	 */
 	public void turnStart() {
 		actEffAv = 1;
-		AtkAv = 1;
-		moveAv = 1;
+		AtkAv = bAtkAv;
+		moveAv = bMoveAv;
 	}
 	
-	/*
-	 * executes effect which require a certain criteria to be executed
+	/**
+	 * returns the CardType of this Creature ("creature")
+	 * @return String
 	 */
-	public abstract void execute(String tr, Board board, String[] location, Player player);
-	
 	public String getCType() {
 		return "creature";
 	}

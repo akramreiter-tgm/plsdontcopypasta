@@ -1,5 +1,6 @@
 package protocol.actions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -32,7 +33,7 @@ public class Movement {
 					for (String s : tmp.toArray(new String[0])) if (bd.getGround(s).gType == 0) tmp.remove(s);
 				}
 				break;
-			case "line":
+			default:
 				if (fly) {
 					tmp = new HashSet<>(Arrays.asList(bd.getLanesFly(loc, c.mRange)));
 				} else {
@@ -71,7 +72,7 @@ public class Movement {
 			case "free":
 				tmp = new HashSet<>(Arrays.asList(bd.getAdjecent(loc, c.aRange)));
 				break;
-			case "line":
+			default:
 				tmp = new HashSet<>(Arrays.asList(bd.getLanesFly(loc, c.aRange)));
 				break;
 			}
@@ -133,7 +134,11 @@ public class Movement {
 			bd.get(targ).setCreature(c);
 			c.moveAv -= 1;
 			if (c.isEffectTriggered("move"))
-			c.execute("move", bd, new String[]{src,targ}, p);
+				try {
+					c.execute("move", bd, new String[]{src,targ}, p);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			bd.triggerExecutableEffects(p, "creaturemove", new String[] {src,targ});
 			return;
 		}
@@ -156,14 +161,31 @@ public class Movement {
 				System.out.println("Creature at " + src + " took " + c2atk + " damage");
 			}
 			if ((c2atk > 0)&&(counterattack)&&(c1.isEffectTriggered("damaged")&&(c1damaged)))
-				c1.execute("damaged", bd, new String[] {src,targ}, p);
+				try {
+					c1.execute("damaged", bd, new String[] {src,targ}, p);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			if ((c1atk > 0)&&(c2.isEffectTriggered("damaged")&&(c2damaged)))
-				c2.execute("damaged", bd, new String[] {targ,src}, p);
+				try {
+					c2.execute("damaged", bd, new String[] {targ,src}, p);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			if (c1.isEffectTriggered("attack"))
-				c1.execute("attack", bd, new String[] {src,targ}, p);
+				try {
+					c1.execute("attack", bd, new String[] {src,targ}, p);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			if (c2.isEffectTriggered("attack"))
-				c2.execute("attack", bd, new String[] {targ,src}, p);
+				try {
+					c2.execute("attack", bd, new String[] {targ,src}, p);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			c1.AtkAv -= 1;
+			c1.moveAv = 0;
 			bd.triggerExecutableEffects(p, "creatureattack", new String[] {src,targ});
 			if ((c1.getcAttack() > 0)&&(c2damaged))
 				bd.triggerExecutableEffects(bd.getPlayer(c2.owner), "creaturedamaged", new String[] {targ,src});
@@ -171,5 +193,25 @@ public class Movement {
 				bd.triggerExecutableEffects(p, "creaturedamaged", new String[] {src,targ});
 			bd.clearBoard();
 		}
+	}
+	
+	public String[] getMoveOrAttackAvCreatures(String own) {
+		ArrayList<String> out = new ArrayList<>(Arrays.asList(bd.getAdjecent("E1",8)));
+		for (String s : out.toArray(new String[0])) {
+			Creature c = bd.getCreature(s);
+			if (c == null) {
+				out.remove(s);
+				continue;
+			}
+			if (c.owner != own) {
+				out.remove(s);
+				continue;
+			}
+			if ((getMovementRange(s).length == 0) && (getAttackRange(s).length == 0)) {
+				out.remove(s);
+				continue;
+			}
+		}
+		return out.toArray(new String[0]);
 	}
 }

@@ -33,6 +33,15 @@ public class Deck implements Serializable, Cloneable {
 		}
 	}
 	
+	public void addOnBottom(int dIndex) {
+		if (dIndex < deck.size()) {
+			try {
+				Card c = deck.remove(dIndex);
+				if (c != null) deck.add(c);
+			} catch (Exception e) {}
+		}
+	}
+	
 	/*
 	 * get() returns the entire deck
 	 */
@@ -40,15 +49,16 @@ public class Deck implements Serializable, Cloneable {
 		return deck;
 	}
 	
-	/*
-	 * adds a card
+	/**
+	 * adds a card to the deck, then shuffles it
+	 * @see protocol.resources.card.Deck#shuffle()
 	 */
 	public void addToDeck(Card c) {
 		deck.add(c);
 		shuffle();
 	}
 	
-	/*
+	/**
 	 * randomizes the order of the cards in the deck
 	 */
 	public void shuffle() {
@@ -59,15 +69,14 @@ public class Deck implements Serializable, Cloneable {
 		deck = ndeck;
 	}
 	
-	/*
+	/**
 	 * returns the size of the deck (no fucking shit sherlock)
 	 */
 	public int getSize() {
 		return deck.size();
 	}
 	
-	/*
-	 * (non-Javadoc)
+	/**
 	 * @see java.lang.Object#clone()
 	 */
 	public Deck clone() {
@@ -77,5 +86,14 @@ public class Deck implements Serializable, Cloneable {
 			cl.addToDeck(c.clone());
 		}
 		return cl;
+	}
+	
+	/**
+	 * returns the Card at the given index i
+	 * @param (int) i
+	 * @return Card
+	 */
+	public Card get(int i) {
+		return deck.get(i);
 	}
 }

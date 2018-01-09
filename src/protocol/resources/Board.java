@@ -9,11 +9,13 @@ import java.util.HashSet;
 
 import javax.xml.soap.SAAJResult;
 
+import deckBuilding.hero.BasicHero;
+import protocol.actions.Activation;
+import protocol.actions.Evolve;
 import protocol.actions.Movement;
 import protocol.actions.Placement;
 import protocol.actions.PlayFromHand;
 import protocol.resources.card.*;
-import protocol.resources.card.creature.Hero;
 
 @SuppressWarnings("unused")
 public class Board implements Serializable, Cloneable {
@@ -28,11 +30,17 @@ public class Board implements Serializable, Cloneable {
 	
 	public PlayFromHand fromhand;
 	
+	public Activation activation;
+	
+	public Evolve evolve;
+	
 	public String[] playerNames = new String[2];
 	
 	public Player[] players = new Player[2];
 	
 	public HashMap<String,Deck> deck;
+	
+	public HashMap<String,CardList> sidedeck;
 	
 	public HashMap<String,CardList> hand;
 	
@@ -61,10 +69,11 @@ public class Board implements Serializable, Cloneable {
 	 */
 	private String[][] geo;
 	
+	
 	public Board(Player[] player) {
 		try {
-			playerNames[0] = player[0].pName;
-			playerNames[1] = player[1].pName;
+			playerNames[0] = player[0].pname;
+			playerNames[1] = player[1].pname;
 			players[0] = player[0];
 			players[1] = player[1];
 		}catch (Exception e) {}
@@ -84,11 +93,14 @@ public class Board implements Serializable, Cloneable {
 		movement = new Movement(this);
 		placement = new Placement(this);
 		fromhand = new PlayFromHand(this);
+		activation = new Activation(this);
+		evolve = new Evolve(this);
 		grave = new HashMap<>();
 		hand = new HashMap<>();
 		removed = new HashMap<>();
 		resources = new HashMap<>();
 		deck = new HashMap<>();
+		sidedeck = new HashMap<>();
 		grave.put(playerNames[0], new CardList());
 		grave.put(playerNames[1], new CardList());
 		hand.put(playerNames[0], new CardList());
@@ -101,6 +113,9 @@ public class Board implements Serializable, Cloneable {
 		resources.get(playerNames[1])[1] = 5;
 		deck.put(playerNames[0], new Deck());
 		deck.put(playerNames[1], new Deck());
+		sidedeck.put(playerNames[0], new CardList());
+		sidedeck.put(playerNames[1], new CardList());
+		System.out.println(getHeroLoc(playerNames[0]) + "," + getCreature("E1").getCType());
 	}
 	
 	private void setup() {
@@ -128,7 +143,7 @@ public class Board implements Serializable, Cloneable {
 		content.get("E2").getGround().owner = playerNames[0];
 		content.get("F1").getGround().owner = playerNames[0];
 		content.get("D1").getGround().owner = playerNames[0];
-		content.get("E1").setCreature(new Hero(playerNames[0]));
+		content.get("E1").setCreature(new BasicHero(playerNames[0]));
 		content.get("E9").getGround().gType = 1;
 		content.get("E8").getGround().gType = 1;
 		content.get("D8").getGround().gType = 1;
@@ -137,7 +152,7 @@ public class Board implements Serializable, Cloneable {
 		content.get("E8").getGround().owner = playerNames[1];
 		content.get("D8").getGround().owner = playerNames[1];
 		content.get("F8").getGround().owner = playerNames[1];
-		content.get("E9").setCreature(new Hero(playerNames[1]));
+		content.get("E9").setCreature(new BasicHero(playerNames[1]));
 		getGround("A1").aeSourceCount = 3;
 		getGround("A3").aeSourceCount = 3;
 		getGround("A5").aeSourceCount = 3;
@@ -445,7 +460,11 @@ public class Board implements Serializable, Cloneable {
 		}
 		for (String s : crs.keySet()) {
 			Creature c = crs.get(s);
-			c.execute("death", this, new String[] {s}, getPlayer(c.owner));
+			try {
+				c.execute("death", this, new String[] {s}, getPlayer(c.owner));
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 		for (String s : deathcount.keySet()) for (String s2 : deathcount.get(s)) {
 			triggerExecutableEffects(getPlayer(s), "creaturedeath", new String[] {s2});
@@ -522,7 +541,7 @@ public class Board implements Serializable, Cloneable {
 	 */
 	public Player getPlayer(String pname) {
 		for (Player p : players) {
-			if (p.pName.equals(pname)) return p;
+			if (p.pname.equals(pname)) return p;
 		}
 		return null;
 	}
@@ -538,36 +557,58 @@ public class Board implements Serializable, Cloneable {
 				String[] loc = new String[locations.length + 1];
 				loc[0] = s;
 				for (int i = 0; i < locations.length; i++) loc[i + 1] = locations[i];
-				if (c.isEffectTriggered(triggername))
-					c.execute(this, locations, p);
+				if (c.isEffectTriggered(triggername)) {
+					System.out.println(triggername + " triggered");
+					try {
+						c.execute(triggername, this, loc, p);
+					}catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 		for (String s : playerNames) for (Card c : deck.get(s).get()) {
 			if (c != null) {
 				String ctrigger = triggername + "deck";
-				if (c.isEffectTriggered(triggername))
-					c.execute(this, locations, p);
+				if (c.isEffectTriggered(ctrigger))
+					try {
+						c.execute(ctrigger, this, locations, p);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 			}
 		}
 		for (String s : playerNames) for (Card c : grave.get(s).get()) {
 			if (c != null) {
 				String ctrigger = triggername + "grave";
-				if (c.isEffectTriggered(triggername))
-					c.execute(this, locations, p);
+				if (c.isEffectTriggered(ctrigger))
+					try {
+						c.execute(ctrigger, this, locations, p);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 			}
 		}
 		for (String s : playerNames) for (Card c : removed.get(s).get()) {
 			if (c != null) {
 				String ctrigger = triggername + "removed";
-				if (c.isEffectTriggered(triggername))
-					c.execute(this, locations, p);
+				if (c.isEffectTriggered(ctrigger))
+					try {
+						c.execute(ctrigger, this, locations, p);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 			}
 		}
 		for (String s : playerNames) for (Card c : hand.get(s).get()) {
 			if (c != null) {
 				String ctrigger = triggername + "hand";
-				if (c.isEffectTriggered(triggername))
-					c.execute(this, locations, p);
+				if (c.isEffectTriggered(ctrigger))
+					try {
+						c.execute(ctrigger, this, locations, p);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 			}
 		}
 	}
@@ -583,34 +624,34 @@ public class Board implements Serializable, Cloneable {
 	 */
 	public void turnStart(Player p) {
 		if (isFirstTurn) {
-			resources.get(p.pName)[0] += 3;
+			resources.get(p.pname)[0] += 3;
 			isFirstTurn = false;
 		} else {
-			resources.get(p.pName)[0] += resources.get(p.pName)[1];
+			resources.get(p.pname)[0] += resources.get(p.pname)[1];
 		}
 		triggerExecutableEffects(p, "turnstart", new String[0]);
 		for (String s : getOrderedFullBoard()) {
 			Creature c = getCreature(s);
 			if (c != null) {
-				if (c.owner.equals(p.pName)) {
+				if (c.owner.equals(p.pname)) {
 					c.turnStart();
 					Ground g = getGround(s);
 					if ((g.aeSourceCount > 0) && (g.gType > 0)) {
 						g.aeSourceCount -= 1;
-						resources.get(p.pName)[2]++;
+						resources.get(p.pname)[2]++;
 						if (g.aeSourceCount == 0) {
-							resources.get(p.pName)[1]++;
+							resources.get(p.pname)[1]++;
 						}
 					}
 				}
 			}
 		}
-		CardList h = hand.get(p.pName);
+		CardList h = hand.get(p.pname);
 		
 		if (h.size() > 9) {
-			deck.get(p.pName).draw();
+			deck.get(p.pname).draw();
 		} else {
-			h.add(deck.get(p.pName).draw());
+			h.add(deck.get(p.pname).draw());
 		}
 	}
 	

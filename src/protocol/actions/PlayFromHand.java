@@ -33,10 +33,17 @@ public class PlayFromHand {
 				for (int j = 0; j < c.resCost.length; j++) {
 					if (c.resCost[j] > bd.resources.get(pname)[3 + j]) {
 						System.out.println("r"+(j+1) + " failed");
-						break outer;
+						continue outer;
 					}
 				}
-				tmp.add(i);
+			} else {
+				System.out.println("e failed");
+				continue outer;
+			}
+			if (c.getCType() == "creature") {
+				if (getPlayableLand((Creature) c).length >= 1) tmp.add(i);
+			} else if (c.getCType() == "spell") {
+					if (c.actEffAvailable(bd, "hand")) tmp.add(i);
 			}
 			i++;
 		}
@@ -50,7 +57,6 @@ public class PlayFromHand {
 	/**
 	 * attempts to play the card at the given index
 	 * in the hand at the targ on the board
-	 * TODO trigger: "creatureplayed"
 	 * TODO add ability to play spells
 	 * TODO trigger: "spellplayed"
 	 * @param (Player) p
@@ -59,10 +65,10 @@ public class PlayFromHand {
 	 * @throws "creatureplayed"
 	 */
 	public void PlayCard(Player p, String targ, int index) {
-		Card c = bd.hand.get(p.pName).get(index);
+		Card c = bd.hand.get(p.pname).get(index);
 		System.out.println(c.getCType());
 		boolean playable = false;
-		for (int i : getPlayableCards(p.pName)) if (i == index) playable = true;
+		for (int i : getPlayableCards(p.pname)) if (i == index) playable = true;
 		if (!playable) return;
 		switch (c.getCType()) {
 		case "creature":
@@ -72,12 +78,19 @@ public class PlayFromHand {
 			for (String s : getPlayableLand((Creature) c)) {
 				if (s.equals(targ)) playable = true;
 			}
-			if (playable) {
-				bd.resources.get(p.pName)[0] -= c.getcCost();
-				c.executeRemotes("entry", bd, new String[] {targ}, p);
-				bd.get(targ).setCreature((Creature) c);
-				bd.hand.get(p.pName).remove(index);
-				bd.triggerExecutableEffects(p, "creatureplayed", new String[] {targ});
+			if (playable) {	
+				try {
+					if (c.isEffectTriggered("entry")) {
+						c.execute("entry", bd, new String[] {targ}, p);
+					}
+					bd.resources.get(p.pname)[0] -= c.getcCost();
+					bd.get(targ).setCreature((Creature) c);
+					bd.hand.get(p.pname).remove(index);
+					bd.triggerExecutableEffects(p, "creatureplayed", new String[] {targ});
+				}catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("couldn't properly execute entry procedure");
+				}
 			}
 			break;
 		}
