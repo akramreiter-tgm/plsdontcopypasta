@@ -2,8 +2,10 @@ package launch.tests;
 
 import java.util.Scanner;
 
+import communication.CommBoard;
 import communication.CommMsg;
 import debugMonitor.Panel;
+import debugMonitor.launchJFXThread;
 import deckBuilding.CardFactory;
 import deckBuilding.creature.*;
 import deckBuilding.ultCreature.SampleUltCreature;
@@ -14,6 +16,9 @@ import protocol.resources.card.CardList;
 import protocol.resources.card.Deck;
 
 public class BoardTest01 {
+	
+	public static JFXMainApplication jfxapp;
+	
 	public static void main(String[] args) {
 		Player r = new Player("r");
 		Player b = new Player("b");
@@ -50,7 +55,14 @@ public class BoardTest01 {
 		ct.start();
 		pt.start();
 		cq.start();
-		JFXMainApplication.selflaunch();
+		new Thread(new launchJFXThread()).start();
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.println("from boardTest: " + jfxapp.toString());
 		while (true) {
 			try {
 				@SuppressWarnings("resource")
@@ -58,8 +70,10 @@ public class BoardTest01 {
 				String s = sc.nextLine();
 				r.inputQueue.add(s);
 				b.inputQueue.add(s);
+				Thread.sleep(100);
+				jfxapp.DrawBoard(new CommBoard(core.bd, null, "r"));
 			}catch (Exception e) {
-				// TODO: handle exception
+				e.printStackTrace();
 			}
 		}
 	}

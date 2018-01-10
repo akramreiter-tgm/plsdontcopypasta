@@ -22,11 +22,20 @@ public class CommBoard implements Serializable, Cloneable {
 	public CommMsg[] messages;
 	public HashMap<String,CommTile> board;
 	public CommCard[] hand, grave, removed, side, deck, enemygrave, enemyremoved;
-	public int enemyhandsize, enemydecksize;
+	public int enemyhandsize, enemydecksize, energy, enemyenergy, aen, enemyaen;
+	public String player;
 	public CommBoard(Board bd, CommMsg[] msg, String pname) {
+		player = pname;
 		board = new HashMap<>();
-		for (String s : bd.getAdjecent("E1",8)) {
-			board.put(s, new CommTile(bd.get(s)));
+		String[] vr = bd.getVisionRange(pname);
+		hi: for (String s : bd.getAdjecent("E1",8)) {
+			for (String s2 : vr) {
+				if (s.equals(s2)) {
+					board.put(s, new CommTile(bd.get(s)));
+					continue hi;
+				}
+			}
+			board.put(s, new CommTile());
 		}
 		String p2name = "";
 		for (String s : bd.playerNames) {

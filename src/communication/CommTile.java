@@ -15,8 +15,19 @@ public class CommTile implements Serializable, Cloneable {
 	public Ground ground;
 	public CommCard creature;
 	
+	public CommTile() {
+		creature = null;
+		ground = new Ground();
+		ground.aeSourceCount = 0;
+		ground.gType = -1;
+	}
+	
 	public CommTile (Tile t) {
 		ground = t.getGround();
-		creature = new CommCard(t.getCreature(),null,null);
+		try {
+			creature = new CommCard(t.getCreature(),null,null);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 }
