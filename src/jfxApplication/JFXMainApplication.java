@@ -23,9 +23,9 @@ public class JFXMainApplication extends Application {
 	Integer size = 1000;
 	public HashMap<String,Image> imgMap = new HashMap<>();
 	
-	final static int CANVAS_WIDTH = 1920;
-    final static int CANVAS_HEIGHT = 1080;
-    static int TILE_HEIGHT = CANVAS_HEIGHT / 10;
+	final static int CANVAS_WIDTH = 1280;
+    final static int CANVAS_HEIGHT = 720;
+    static double TILE_HEIGHT = CANVAS_HEIGHT / 10;
 	
 	final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	final GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
@@ -44,6 +44,7 @@ public class JFXMainApplication extends Application {
         Scene scene = new Scene(root, CANVAS_WIDTH, CANVAS_HEIGHT);
         primaryStage.setTitle("FreeBSD");
         primaryStage.setScene(scene);
+        //primaryStage.setFullScreen(true);
         primaryStage.show();
         BoardTest01.jfxapp = this;
         System.out.println(this.toString());
@@ -100,8 +101,7 @@ public class JFXMainApplication extends Application {
 			imgMap.put("esrc", new Image(new FileInputStream(new File("resources\\general\\energySourceImg.png"))));
 			imgMap.put("esrcv", new Image(new FileInputStream(new File("resources\\general\\energySourceVoid.png"))));
 			imgMap.put("land", new Image(new FileInputStream(new File("resources\\general\\landImg.png"))));
-			imgMap.put("numbg", new Image(new FileInputStream(new File("resources\\general\\font\\bg.png"))));
-			imgMap.put("numbgs", new Image(new FileInputStream(new File("resources\\general\\font\\bgs.png"))));
+			imgMap.put("cardframe", new Image(new FileInputStream(new File("resources\\general\\cardFrame.png"))));
 			for (int i = 0; i < 10; i++) {
 				imgMap.put("char" + i, new Image(new FileInputStream(new File("resources\\general\\font\\" + i + ".png"))));
 			}
@@ -115,8 +115,8 @@ public class JFXMainApplication extends Application {
 		
 		for (String s : cb.board.keySet()) {
 			try {
-				int x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
-				int y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 84 / 100 + 10;
+				double x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
+				double y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 84 / 100 + 10;
 				//System.out.println("ground type " + cb.board.get(s).ground.gType + "(" + s + ") , drawn at x:" + x + " y:" + y);
 				switch (cb.board.get(s).ground.gType) {
 				case -1 : graphicsContext.drawImage(imgMap.get("fog"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
@@ -148,11 +148,10 @@ public class JFXMainApplication extends Application {
 		}
 		for (String s : cb.board.keySet()) {
 			try {
-				int x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
-				int y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 84 / 100 + 10;
+				double x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
+				double y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 84 / 100 + 10;
 				if (cb.board.get(s).creature != null) {
 					CommCard cc = cb.board.get(s).creature;
-					System.out.println("hi");
 					if (imgMap.get(cc.ctype + cc.cname) != null) {
 						graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
 					}
@@ -178,16 +177,28 @@ public class JFXMainApplication extends Application {
 					}
 					
 					for (int i = 0; i < atk.size(); i++) {
-						System.out.println("hi");
 						graphicsContext.drawImage(imgMap.get("char"+atk.get(atk.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.2 * i + 0.05), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
 					}
 					for (int i = 0; i < hp.size(); i++) {
-						System.out.println("hi");
 						graphicsContext.drawImage(imgMap.get("char"+hp.get(hp.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.9 - 0.2 * (hp.size() - i)), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+		}
+		for (int i = 0; i < cb.hand.length; i++) {
+			CommCard cc = cb.hand[i];
+			double x = TILE_HEIGHT * 0.1 + i * TILE_HEIGHT * 1.05;
+			double y = TILE_HEIGHT * 8.8;
+			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+			if (imgMap.get(cc.ctype + cc.cname) != null) {
+				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+			}
+			else {
+				if (loadTile(cc.ctype, cc.cname)) {
+					graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+				}
 			}
 		}
 	}
