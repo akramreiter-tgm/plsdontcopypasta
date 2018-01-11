@@ -57,7 +57,7 @@ public class BoardTest01 {
 		cq.start();
 		new Thread(new launchJFXThread()).start();
 		try {
-			Thread.sleep(500);
+			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
