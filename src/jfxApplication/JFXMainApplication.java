@@ -90,6 +90,7 @@ public class JFXMainApplication extends Application {
         BoardTest01.jfxapp = this;
         System.out.println(this.toString());
         //graphicsContext.drawImage(imgMap.get("fog"), 400, 400);
+        graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     }
     
     private void initDraw(GraphicsContext gc){
@@ -148,7 +149,7 @@ public class JFXMainApplication extends Application {
 	
 	public void DrawBoard(CommBoard cb) {
 		System.out.println("drawing cb");
-		//graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		
 		for (String s : cb.board.keySet()) {
 			try {
 				int x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
