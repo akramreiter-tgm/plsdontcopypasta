@@ -186,6 +186,16 @@ public class JFXMainApplication extends Application {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			try {
+				graphicsContext.setFill(Color.BLACK);
+				graphicsContext.fillText("Energy: " + cb.energy, TILE_HEIGHT * 9.5, 20);
+				graphicsContext.fillText("Energygain: " + cb.energygain, TILE_HEIGHT * 9.5, 35);
+				graphicsContext.fillText("AltEnergy: " + cb.aen, TILE_HEIGHT * 9.5, 50);
+				graphicsContext.fillText("EnemyEnergy: " + cb.enemyenergy, TILE_HEIGHT * 9.5, 65);
+				graphicsContext.fillText("EnemyAltEnergy: " + cb.enemyaen, TILE_HEIGHT * 9.5, 80);
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		for (int i = 0; i < cb.hand.length; i++) {
 			CommCard cc = cb.hand[i];

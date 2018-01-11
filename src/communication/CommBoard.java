@@ -22,8 +22,9 @@ public class CommBoard implements Serializable, Cloneable {
 	public CommMsg[] messages;
 	public HashMap<String,CommTile> board;
 	public CommCard[] hand, grave, removed, side, deck, enemygrave, enemyremoved;
-	public int enemyhandsize, enemydecksize, energy, enemyenergy, aen, enemyaen;
+	public int enemyhandsize, enemydecksize, energy, enemyenergy, aen, enemyaen, energygain;
 	public String player;
+	
 	public CommBoard(Board bd, CommMsg[] msg, String pname) {
 		player = pname;
 		board = new HashMap<>();
@@ -73,17 +74,13 @@ public class CommBoard implements Serializable, Cloneable {
 			// TODO: handle exception
 		}
 		enemygrave = new CommCard[bd.grave.get(p2name).size()];
-		cd = bd.grave.get(p2name).get();
-		for (int i = 0; i < cd.size(); i++) {
-			grave[i] = new CommCard(cd.get(i), bd, "grave");
-		}
 		enemyremoved = new CommCard[bd.removed.get(p2name).size()];
-		cd = bd.removed.get(p2name).get();
-		for (int i = 0; i < cd.size(); i++) {
-			removed[i] = new CommCard(cd.get(i), bd, "removed");
-		}
 		enemyhandsize = bd.hand.get(p2name).size();
 		enemydecksize = bd.deck.get(p2name).deck.size();
-		
+		energygain = bd.resources.get(pname)[1];
+		energy = bd.resources.get(pname)[0];
+		aen =  bd.resources.get(pname)[2];
+		enemyenergy = bd.resources.get(p2name)[0];
+		enemyaen = bd.resources.get(p2name)[2];
 	}
 }
