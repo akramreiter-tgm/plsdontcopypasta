@@ -139,6 +139,7 @@ public class JFXMainApplication extends Application {
 			imgMap.put("fog", new Image(new FileInputStream(new File("resources\\general\\fogImg.png"))));
 			imgMap.put("void", new Image(new FileInputStream(new File("resources\\general\\voidTile.png"))));
 			imgMap.put("esrc", new Image(new FileInputStream(new File("resources\\general\\energySourceImg.png"))));
+			imgMap.put("esrcv", new Image(new FileInputStream(new File("resources\\general\\energySourceVoid.png"))));
 			imgMap.put("land", new Image(new FileInputStream(new File("resources\\general\\landImg.png"))));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -162,6 +163,22 @@ public class JFXMainApplication extends Application {
 				case 4 : graphicsContext.drawImage(imgMap.get("res3"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
 				case 5 : graphicsContext.drawImage(imgMap.get("res4"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
 				}
+				
+				if (cb.board.get(s).ground.aeSourceCount >= 1) {
+					if (cb.board.get(s).ground.gType >= 1) {
+						graphicsContext.drawImage(imgMap.get("esrc"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+					} else if (cb.board.get(s).ground.gType == 0) {
+						graphicsContext.drawImage(imgMap.get("esrcv"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+					}
+				}
+				if (cb.board.get(s).ground.gType >= 1) {
+					if (cb.board.get(s).ground.owner.startsWith(cb.player)) {
+						graphicsContext.drawImage(imgMap.get("rframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+					} else {
+						graphicsContext.drawImage(imgMap.get("bframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+					}
+				}
+				
 				if (cb.board.get(s).creature != null) {
 					CommCard cc = cb.board.get(s).creature;
 					if (imgMap.get(cc.ctype + cc.cname) != null) {
@@ -171,18 +188,6 @@ public class JFXMainApplication extends Application {
 						if (loadTile(cc.ctype, cc.cname)) {
 							graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
 						}
-					}
-				}
-				if (cb.board.get(s).ground.aeSourceCount >= 1) {
-					if (cb.board.get(s).ground.gType >= 1) {
-						graphicsContext.drawImage(imgMap.get("esrc"), x, y, TILE_HEIGHT, TILE_HEIGHT);
-					}
-				}
-				if (cb.board.get(s).ground.gType >= 1) {
-					if (cb.board.get(s).ground.owner.startsWith(cb.player)) {
-						graphicsContext.drawImage(imgMap.get("rframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
-					} else {
-						graphicsContext.drawImage(imgMap.get("bframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
 					}
 				}
 			} catch (Exception e) {
