@@ -31,7 +31,7 @@ public class CommBoard implements Serializable, Cloneable {
 		hi: for (String s : bd.getAdjecent("E1",8)) {
 			for (String s2 : vr) {
 				if (s.equals(s2)) {
-					board.put(s, new CommTile(bd.get(s)));
+					board.put(s, new CommTile(bd.get(s),bd,s));
 					continue hi;
 				}
 			}

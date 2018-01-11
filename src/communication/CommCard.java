@@ -18,8 +18,8 @@ public class CommCard implements Serializable, Cloneable, Comparable<Object> {
 	 * 
 	 */
 	private static final long serialVersionUID = 8787556910165446831L;
-	public int atk = -1337, health = -1337, cost, mrange = -1337, vrange = -1337, arange = -1337; //for spells atk, health, vrange, arange and mrange should be -1337
-	public String[] tags = new String[0];; //Card.tags + all built-in booleans (shield, flying, etc.)
+	public int atk = -1337, health = -1337, cost = 0, mrange = -1337, vrange = -1337, arange = -1337; //for spells atk, health, vrange, arange and mrange should be -1337
+	public String[] tags = new String[0]; //Card.tags + all built-in booleans (shield, flying, etc.)
 	public boolean freemove = false, freeatk = false;
 	public String cname = "", ctype = "";
 	
@@ -38,6 +38,8 @@ public class CommCard implements Serializable, Cloneable, Comparable<Object> {
 	 * @param c
 	 */
 	public CommCard(Card c, Board bd, String loc) {
+		if (c == null) System.out.println("c is null");
+		//System.out.println(c.toString() + " " + c.getcCost());
 		cost = c.getcCost();
 		ctype = c.getCType();
 		cname = c.getCName();

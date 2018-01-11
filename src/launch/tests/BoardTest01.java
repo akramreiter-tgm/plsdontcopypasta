@@ -71,7 +71,8 @@ public class BoardTest01 {
 				r.inputQueue.add(s);
 				b.inputQueue.add(s);
 				Thread.sleep(100);
-				jfxapp.DrawBoard(new CommBoard(core.bd, null, "r"));
+				CommBoard ccb = new CommBoard(core.bd, null, "r");
+				jfxapp.DrawBoard(ccb);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 
+import javax.swing.UIManager.LookAndFeelInfo;
+
 import communication.CommBoard;
+import communication.CommCard;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -110,8 +113,15 @@ public class JFXMainApplication extends Application {
         image = imgMap.get("res1");
     }
 	
-	public void loadTile(String cat, String name) {
-		
+	public boolean loadTile(String cat, String name) {
+		try {
+			System.out.println("reading: \"resources\\"+cat+"\\" + name + ".png\"");
+			imgMap.put(cat+name, new Image(new FileInputStream(new File("resources\\"+cat+"\\" + name + ".png"))));
+			return true;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	public void stop() {
@@ -142,7 +152,7 @@ public class JFXMainApplication extends Application {
 			try {
 				int x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
 				int y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 84 / 100 + 10;
-				System.out.println("ground type " + cb.board.get(s).ground.gType + "(" + s + ") , drawn at x:" + x + " y:" + y);
+				//System.out.println("ground type " + cb.board.get(s).ground.gType + "(" + s + ") , drawn at x:" + x + " y:" + y);
 				switch (cb.board.get(s).ground.gType) {
 				case -1 : graphicsContext.drawImage(imgMap.get("fog"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
 				case 0 : graphicsContext.drawImage(imgMap.get("void"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
@@ -151,6 +161,17 @@ public class JFXMainApplication extends Application {
 				case 3 : graphicsContext.drawImage(imgMap.get("res2"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
 				case 4 : graphicsContext.drawImage(imgMap.get("res3"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
 				case 5 : graphicsContext.drawImage(imgMap.get("res4"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;
+				}
+				if (cb.board.get(s).creature != null) {
+					CommCard cc = cb.board.get(s).creature;
+					if (imgMap.get(cc.ctype + cc.cname) != null) {
+						graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+					}
+					else {
+						if (loadTile(cc.ctype, cc.cname)) {
+							graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+						}
+					}
 				}
 				if (cb.board.get(s).ground.aeSourceCount >= 1) {
 					if (cb.board.get(s).ground.gType >= 1) {

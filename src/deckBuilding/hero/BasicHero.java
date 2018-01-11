@@ -11,6 +11,7 @@ public class BasicHero extends Hero {
 		super(owner);
 		bHealth = 50;
 		bAttack = 0;
+		bCost = 1000;
 		vRange = 2;
 		mRange = 1;
 		aRange = 1;

@@ -2,6 +2,7 @@ package communication;
 
 import java.io.Serializable;
 
+import protocol.resources.Board;
 import protocol.resources.Ground;
 import protocol.resources.Tile;
 
@@ -22,12 +23,10 @@ public class CommTile implements Serializable, Cloneable {
 		ground.gType = -1;
 	}
 	
-	public CommTile (Tile t) {
+	public CommTile (Tile t, Board bd, String loc) {
 		ground = t.getGround();
-		try {
-			creature = new CommCard(t.getCreature(),null,null);
-		}catch (Exception e) {
-			// TODO: handle exception
+		if (t.getCreature() != null) {
+			creature = new CommCard(t.getCreature(),bd,loc);
 		}
 	}
 }
