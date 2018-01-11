@@ -3,20 +3,17 @@ package jfxApplication;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.swing.UIManager.LookAndFeelInfo;
 
 import communication.CommBoard;
 import communication.CommCard;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -26,9 +23,9 @@ public class JFXMainApplication extends Application {
 	Integer size = 1000;
 	public HashMap<String,Image> imgMap = new HashMap<>();
 	
-	final static int CANVAS_WIDTH = 1280;
-    final static int CANVAS_HEIGHT = 720;
-    final static int TILE_HEIGHT = CANVAS_HEIGHT / 10;
+	final static int CANVAS_WIDTH = 1920;
+    final static int CANVAS_HEIGHT = 1080;
+    static int TILE_HEIGHT = CANVAS_HEIGHT / 10;
 	
 	final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	final GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
@@ -40,45 +37,6 @@ public class JFXMainApplication extends Application {
     @Override
     public void start(final Stage primaryStage) {
         initDraw(graphicsContext);
-        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
-                new EventHandler<MouseEvent>(){
-
-            @Override
-            public void handle(MouseEvent event) {
-                
-                x0 = event.getX();
-                y0 = event.getY();
-
-            }
-        });
-        
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
-                new EventHandler<MouseEvent>(){
-
-            @Override
-            public void handle(MouseEvent event) {
-
-            }
-        });
-
-        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
-                new EventHandler<MouseEvent>(){
-
-            @Override
-            public void handle(MouseEvent event) {
-                
-                x1 = event.getX();
-                y1 = event.getY();
-                
-                double x = (x0 > x1) ? x1 : x0;
-                double y = (y0 > y1) ? y1 : y0;
-                double w = (x0 > x1) ? x0-x1 : x1-x0;
-                double h = (y0 > y1) ? y0-y1 : y1-y0;
-                graphicsContext.drawImage(imgMap.get("fog"), x, y, w, h);
-                
-            }
-        });
-
         Group root = new Group();
         VBox vBox = new VBox();
         vBox.getChildren().addAll(canvas);
@@ -142,6 +100,11 @@ public class JFXMainApplication extends Application {
 			imgMap.put("esrc", new Image(new FileInputStream(new File("resources\\general\\energySourceImg.png"))));
 			imgMap.put("esrcv", new Image(new FileInputStream(new File("resources\\general\\energySourceVoid.png"))));
 			imgMap.put("land", new Image(new FileInputStream(new File("resources\\general\\landImg.png"))));
+			imgMap.put("numbg", new Image(new FileInputStream(new File("resources\\general\\font\\bg.png"))));
+			imgMap.put("numbgs", new Image(new FileInputStream(new File("resources\\general\\font\\bgs.png"))));
+			for (int i = 0; i < 10; i++) {
+				imgMap.put("char" + i, new Image(new FileInputStream(new File("resources\\general\\font\\" + i + ".png"))));
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -179,9 +142,17 @@ public class JFXMainApplication extends Application {
 						graphicsContext.drawImage(imgMap.get("bframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
 					}
 				}
-				
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+		for (String s : cb.board.keySet()) {
+			try {
+				int x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
+				int y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 84 / 100 + 10;
 				if (cb.board.get(s).creature != null) {
 					CommCard cc = cb.board.get(s).creature;
+					System.out.println("hi");
 					if (imgMap.get(cc.ctype + cc.cname) != null) {
 						graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
 					}
@@ -189,6 +160,30 @@ public class JFXMainApplication extends Application {
 						if (loadTile(cc.ctype, cc.cname)) {
 							graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
 						}
+					}
+					ArrayList<Integer> atk = new ArrayList<>();
+					ArrayList<Integer> hp = new ArrayList<>();
+					int attack = cc.atk;
+					int health = cc.health;
+					if (attack == 0) atk.add(0);
+					if (health == 0) hp.add(0);
+					System.out.println(health);
+					while (attack > 0) {
+						atk.add(attack % 10);
+						attack = attack / 10;
+					}
+					while (health > 0) {
+						hp.add(health % 10);
+						health = health / 10;
+					}
+					
+					for (int i = 0; i < atk.size(); i++) {
+						System.out.println("hi");
+						graphicsContext.drawImage(imgMap.get("char"+atk.get(atk.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.2 * i + 0.05), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
+					}
+					for (int i = 0; i < hp.size(); i++) {
+						System.out.println("hi");
+						graphicsContext.drawImage(imgMap.get("char"+hp.get(hp.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.9 - 0.2 * (hp.size() - i)), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
 					}
 				}
 			} catch (Exception e) {

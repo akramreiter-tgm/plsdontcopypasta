@@ -38,13 +38,13 @@ public class CommCard implements Serializable, Cloneable, Comparable<Object> {
 	 * @param c
 	 */
 	public CommCard(Card c, Board bd, String loc) {
-		if (c == null) System.out.println("c is null");
 		//System.out.println(c.toString() + " " + c.getcCost());
 		cost = c.getcCost();
 		ctype = c.getCType();
 		cname = c.getCName();
 		tags = c.getTags();
-		if (c.getCType().contains("creature")) {
+		System.out.println(c.getCType());
+		if ((c.getCType().contains("creature"))||(c.getCType().contains("hero"))) {
 			Creature cr = (Creature) c;
 			atk = cr.getcAttack();
 			health = cr.getcHealth();

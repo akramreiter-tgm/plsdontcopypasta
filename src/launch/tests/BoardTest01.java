@@ -63,6 +63,8 @@ public class BoardTest01 {
 			e1.printStackTrace();
 		}
 		System.out.println("from boardTest: " + jfxapp.toString());
+		CommBoard ccb = new CommBoard(core.bd, null, "r");
+		jfxapp.DrawBoard(ccb);
 		while (true) {
 			try {
 				@SuppressWarnings("resource")
@@ -71,7 +73,7 @@ public class BoardTest01 {
 				r.inputQueue.add(s);
 				b.inputQueue.add(s);
 				Thread.sleep(100);
-				CommBoard ccb = new CommBoard(core.bd, null, "r");
+				ccb = new CommBoard(core.bd, null, "r");
 				jfxapp.DrawBoard(ccb);
 			}catch (Exception e) {
 				e.printStackTrace();
