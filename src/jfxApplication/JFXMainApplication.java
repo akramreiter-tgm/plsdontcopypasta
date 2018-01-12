@@ -292,8 +292,8 @@ public class JFXMainApplication extends Application {
 		graphicsContext.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		for (int i = 0; i < cl.length; i++) {
 			CommCard cc = cl[i];
-			double x = TILE_HEIGHT * 0.1 + (i % 10) * TILE_HEIGHT * 1.05;
-			double y = TILE_HEIGHT * (i / 10) + 0.1;
+			double x = TILE_HEIGHT * 0.2 + (i % 10) * TILE_HEIGHT * 1.1;
+			double y = TILE_HEIGHT * (i / 10) * 1.1 + TILE_HEIGHT * 0.2;
 			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
 			if (imgMap.get(cc.ctype + cc.cname) != null) {
 				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
