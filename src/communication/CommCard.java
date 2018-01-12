@@ -13,7 +13,7 @@ import protocol.resources.card.Creature;
  * @author alexk
  *
  */
-public class CommCard implements Serializable, Cloneable, Comparable<Object> {
+public class CommCard implements Serializable, Cloneable, Comparable<CommCard> {
 	/**
 	 * 
 	 */
@@ -90,10 +90,7 @@ public class CommCard implements Serializable, Cloneable, Comparable<Object> {
 	}
 
 	@Override
-	public int compareTo(Object o) {
-		if (o instanceof CommCard) {
-			cname.compareTo(((CommCard)o).cname);
-		}		
-		return cname.compareTo(o.toString());
+	public int compareTo(CommCard o) {
+		return cname.compareTo(o.cname);
 	}
 }

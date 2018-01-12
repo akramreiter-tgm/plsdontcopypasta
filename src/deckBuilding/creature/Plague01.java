@@ -36,13 +36,12 @@ public class Plague01 extends Creature {
 	}
 
 	@Override
-	public void execute(String tr, Board board, String[] location, Player player) throws Exception {
+	public void executeNative(String tr, Board board, String[] location, Player player) {
 		if (tr == "activehand") {
 			Creature c = board.getCreature(board.getHeroLoc(this.owner));
 			c.setcAttack(c.getcAttack() + 1);
 			board.hand.get(player.pname).get().remove(this);
 		}
-		executeRemotes(tr, board, location, player);
 	}
 
 	@Override

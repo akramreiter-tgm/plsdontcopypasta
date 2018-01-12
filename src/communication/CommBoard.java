@@ -3,6 +3,7 @@ package communication;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import protocol.resources.Board;
@@ -69,9 +70,15 @@ public class CommBoard implements Serializable, Cloneable {
 			deck[i] = new CommCard(cd.get(i), bd, "deck");
 		}
 		try {
-			Arrays.sort(deck);
+			Arrays.sort(deck, new Comparator<CommCard>() {
+
+				@Override
+				public int compare(CommCard o1, CommCard o2) {
+					return o1.compareTo(o2);
+				}
+			});
 		}catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		enemygrave = new CommCard[bd.grave.get(p2name).size()];
 		enemyremoved = new CommCard[bd.removed.get(p2name).size()];

@@ -30,7 +30,7 @@ public class SampleUltCreature extends UltCreature{
 	}
 
 	@Override
-	public void execute(String tr, Board board, String[] location, Player player) throws Exception {
+	public void executeNative(String tr, Board board, String[] location, Player player) {
 		if (tr == "entry") {
 			try {
 				Creature h = board.getCreature(board.getHeroLoc(owner));
@@ -39,8 +39,7 @@ public class SampleUltCreature extends UltCreature{
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		executeRemotes(tr, board, location, player);		
+		}		
 	}
 
 	@Override

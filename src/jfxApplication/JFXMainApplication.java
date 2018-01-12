@@ -9,11 +9,13 @@ import java.util.HashMap;
 import communication.CommBoard;
 import communication.CommCard;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -30,9 +32,11 @@ public class JFXMainApplication extends Application {
 	final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	final GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
 	
+	String displayedContent = "board";
 
     double x0, y0, x1, y1;
     Image image;
+	private CommBoard commBoard;
 
     @Override
     public void start(final Stage primaryStage) {
@@ -46,6 +50,53 @@ public class JFXMainApplication extends Application {
         primaryStage.setScene(scene);
         //primaryStage.setFullScreen(true);
         primaryStage.show();
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @SuppressWarnings("incomplete-switch")
+			@Override
+            public void handle(KeyEvent event) {
+                switch (event.getCode()) {
+                    case G: 
+                    	if (displayedContent.startsWith("grave")) {
+                    		displayedContent = "board";
+                    	} else {
+                    		displayedContent = "grave";
+                    	}
+                    	break;
+                    case D: 
+                    	if (displayedContent.startsWith("deck")) {
+                    		displayedContent = "board";
+                    	} else {
+                    		displayedContent = "deck";
+                    	}
+                    	break;
+                    case R:
+                    	if (displayedContent.startsWith("removed")) {
+                    		displayedContent = "board";
+                    	} else {
+                    		displayedContent = "removed";
+                    	}
+                    	break;
+                    case E:
+                    	if (displayedContent.startsWith("enemygrave")) {
+                    		displayedContent = "board";
+                    	} else {
+                    		displayedContent = "enemygrave";
+                    	}
+                    	break;
+                    case B:
+                    	displayedContent = "board";
+                    	break;
+                    case X:
+                    	if (displayedContent.startsWith("enemyremoved")) {
+                    		displayedContent = "board";
+                    	} else {
+                    		displayedContent = "enemyremoved";
+                    	}
+                    	break;
+                }
+                DrawBoard(null);
+            }
+        });
         BoardTest01.jfxapp = this;
         System.out.println(this.toString());
         //graphicsContext.drawImage(imgMap.get("fog"), 400, 400);
@@ -111,8 +162,13 @@ public class JFXMainApplication extends Application {
 	}
 	
 	public void DrawBoard(CommBoard cb) {
+		if (cb != null) {
+			commBoard = cb;
+		} else {
+			cb = commBoard;
+		}
 		System.out.println("drawing cb");
-		
+		graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		for (String s : cb.board.keySet()) {
 			try {
 				double x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
@@ -143,7 +199,7 @@ public class JFXMainApplication extends Application {
 					}
 				}
 			}catch (Exception e) {
-				// TODO: handle exception
+				e.printStackTrace();
 			}
 		}
 		for (String s : cb.board.keySet()) {
@@ -176,11 +232,12 @@ public class JFXMainApplication extends Application {
 						health = health / 10;
 					}
 					
+					System.out.println(cc.cname + ": " + cc.atk + " Atk, " + cc.health + " Health");
 					for (int i = 0; i < atk.size(); i++) {
-						graphicsContext.drawImage(imgMap.get("char"+atk.get(atk.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.2 * i + 0.05), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
+						graphicsContext.drawImage(imgMap.get("char"+atk.get(atk.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.18 * i + 0.05), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
 					}
 					for (int i = 0; i < hp.size(); i++) {
-						graphicsContext.drawImage(imgMap.get("char"+hp.get(hp.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.9 - 0.2 * (hp.size() - i)), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
+						graphicsContext.drawImage(imgMap.get("char"+hp.get(hp.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.9 - 0.18 * (hp.size() - i)), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
 					}
 				}
 			} catch (Exception e) {
@@ -188,11 +245,11 @@ public class JFXMainApplication extends Application {
 			}
 			try {
 				graphicsContext.setFill(Color.BLACK);
-				graphicsContext.fillText("Energy: " + cb.energy, TILE_HEIGHT * 9.5, 20);
-				graphicsContext.fillText("Energygain: " + cb.energygain, TILE_HEIGHT * 9.5, 35);
-				graphicsContext.fillText("AltEnergy: " + cb.aen, TILE_HEIGHT * 9.5, 50);
-				graphicsContext.fillText("EnemyEnergy: " + cb.enemyenergy, TILE_HEIGHT * 9.5, 65);
-				graphicsContext.fillText("EnemyAltEnergy: " + cb.enemyaen, TILE_HEIGHT * 9.5, 80);
+				graphicsContext.fillText("Energy: " + cb.energy, TILE_HEIGHT * 9.5, 35);
+				graphicsContext.fillText("Energygain: " + cb.energygain, TILE_HEIGHT * 9.5, 50);
+				graphicsContext.fillText("AltEnergy: " + cb.aen, TILE_HEIGHT * 9.5, 65);
+				graphicsContext.fillText("EnemyEnergy: " + cb.enemyenergy, TILE_HEIGHT * 9.5, 80);
+				graphicsContext.fillText("EnemyAltEnergy: " + cb.enemyaen, TILE_HEIGHT * 9.5, 95);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -211,8 +268,44 @@ public class JFXMainApplication extends Application {
 				}
 			}
 		}
+		switch (displayedContent) {
+		case "grave":
+			DrawCardsInForeground(cb.grave);
+			break;
+		case "deck":
+			DrawCardsInForeground(cb.deck);
+			break;
+		case "removed":
+			DrawCardsInForeground(cb.removed);
+			break;
+		case "enemygrave":
+			DrawCardsInForeground(cb.enemygrave);
+			break;
+		case "enemyremoved":
+			DrawCardsInForeground(cb.enemyremoved);
+			break;
+		}
 	}
-
+	
+	public void DrawCardsInForeground(CommCard[] cl) {
+		graphicsContext.setFill(Color.rgb(0, 0, 0, 0.6));
+		graphicsContext.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		for (int i = 0; i < cl.length; i++) {
+			CommCard cc = cl[i];
+			double x = TILE_HEIGHT * 0.1 + (i % 10) * TILE_HEIGHT * 1.05;
+			double y = TILE_HEIGHT * (i / 10) + 0.1;
+			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+			if (imgMap.get(cc.ctype + cc.cname) != null) {
+				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+			}
+			else {
+				if (loadTile(cc.ctype, cc.cname)) {
+					graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+				}
+			}
+		}
+	}
+	
 	public static void selflaunch() {
 		launch();
 	}

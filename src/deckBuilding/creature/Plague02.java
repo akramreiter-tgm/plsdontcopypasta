@@ -38,7 +38,7 @@ public class Plague02 extends Creature {
 	}
 
 	@Override
-	public void execute(String tr, Board board, String[] location, Player player) throws Exception {
+	public void executeNative(String tr, Board board, String[] location, Player player) {
 		hi: if (tr == "entry") {
 			System.out.println("starting entry");
 			ArrayList<String> tmp = new ArrayList<>(Arrays.asList(board.getAdjecent(location[0])));
@@ -72,7 +72,6 @@ public class Plague02 extends Creature {
 			}
 		}
 		System.out.println("executing remote effects");
-		executeRemotes(tr, board, location, player);
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import communication.CommMsg;
 import debugMonitor.Panel;
 import debugMonitor.launchJFXThread;
 import deckBuilding.CardFactory;
-import deckBuilding.creature.*;
 import deckBuilding.ultCreature.SampleUltCreature;
 import jfxApplication.JFXMainApplication;
 import protocol.Coreprotocol;

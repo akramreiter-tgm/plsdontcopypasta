@@ -20,7 +20,6 @@ public class BasicHero extends Hero {
 
 	@Override
 	public void execute(Board board, String[] location, Player player) throws Exception {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -31,14 +30,14 @@ public class BasicHero extends Hero {
 	}
 
 	@Override
-	public void execute(String tr, Board board, String[] location, Player player) throws Exception {
-		// TODO Auto-generated method stub
-		
+	public boolean actEffAvailable(Board b, String ownloc) {
+		return false;
 	}
 
 	@Override
-	public boolean actEffAvailable(Board b, String ownloc) {
-		return false;
+	public void executeNative(String tr, Board board, String[] location, Player player) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

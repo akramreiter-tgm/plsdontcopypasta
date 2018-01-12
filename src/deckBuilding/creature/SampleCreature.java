@@ -38,7 +38,7 @@ public class SampleCreature extends Creature{
 	}
 
 	@Override
-	public void execute(String tr, Board board, String[] location, Player player) {
+	public void executeNative(String tr, Board board, String[] location, Player player) {
 		if (tr == "activehand") {
 			ArrayList<String> tmp = new ArrayList<>(Arrays.asList(board.playerNames.clone()));
 			for (String s : tmp) {
@@ -71,7 +71,6 @@ public class SampleCreature extends Creature{
 				i++;
 			}
 		}
-		executeRemotes(tr, board, location, player);
 	}
 
 	@Override
