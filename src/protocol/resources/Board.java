@@ -468,6 +468,7 @@ public class Board implements Serializable, Cloneable {
 		}
 		for (String s : deathcount.keySet()) for (String s2 : deathcount.get(s)) {
 			triggerExecutableEffects(getPlayer(s), "creaturedeath", new String[] {s2});
+			
 		}
 	}
 	

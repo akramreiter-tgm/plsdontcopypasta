@@ -25,6 +25,10 @@ public class Movement {
 			Creature c = bd.getCreature(loc);
 			HashSet<String> tmp = new HashSet<>();
 			String[] vr = bd.getVisionRange(c.owner);
+			String[] adjt = bd.getAdjecent(loc);
+			for (String s : adjt) {
+				if (bd.getCreature(s).taunt) return new String[0];
+			}
 			boolean fly = c.flying;
 			switch (c.mType) {
 			case "free":

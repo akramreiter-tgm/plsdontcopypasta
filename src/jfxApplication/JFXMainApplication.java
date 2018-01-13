@@ -16,6 +16,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -50,6 +51,14 @@ public class JFXMainApplication extends Application {
         primaryStage.setScene(scene);
         //primaryStage.setFullScreen(true);
         primaryStage.show();
+        scene.setOnMouseReleased(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				double x = event.getSceneX();
+				double y = event.getSceneY();
+			}
+		});
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @SuppressWarnings("incomplete-switch")
 			@Override

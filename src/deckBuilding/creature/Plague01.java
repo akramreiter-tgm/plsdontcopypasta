@@ -1,11 +1,8 @@
 package deckBuilding.creature;
 
-import java.util.ArrayList;
-
 import deckBuilding.effect.PlaguePassive;
 import protocol.resources.Board;
 import protocol.resources.Player;
-import protocol.resources.card.Card;
 import protocol.resources.card.Creature;
 
 public class Plague01 extends Creature {

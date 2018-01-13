@@ -14,6 +14,7 @@ import protocol.resources.Player;
 import protocol.resources.card.CardList;
 import protocol.resources.card.Deck;
 
+@SuppressWarnings("unused")
 public class BoardTest01 {
 	
 	public static JFXMainApplication jfxapp;
@@ -62,7 +63,7 @@ public class BoardTest01 {
 			e1.printStackTrace();
 		}
 		System.out.println("from boardTest: " + jfxapp.toString());
-		CommBoard ccb = new CommBoard(core.bd, null, "b");
+		CommBoard ccb = new CommBoard(core.bd, null, "r");
 		jfxapp.drawBoard(ccb);
 		while (true) {
 			try {
@@ -72,7 +73,7 @@ public class BoardTest01 {
 				r.inputQueue.add(s);
 				b.inputQueue.add(s);
 				Thread.sleep(100);
-				ccb = new CommBoard(core.bd, null, "b");
+				ccb = new CommBoard(core.bd, null, "r");
 				jfxapp.drawBoard(ccb);
 			}catch (Exception e) {
 				e.printStackTrace();

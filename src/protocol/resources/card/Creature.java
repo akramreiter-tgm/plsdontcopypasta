@@ -13,6 +13,7 @@ public abstract class Creature extends Card implements Serializable, Cloneable {
 	// mType/aType: line: can move/attack in straight line; free: can attack anything in range (Board.getAdjecent)
 	public boolean shield, taunt, root, stun, terrified, flying;
 	public int moveAv, AtkAv, actEffAv, bMoveAv = 1, bAtkAv = 1;
+	protected int maxActEff = 1;
 	
 	/**
 	 * calls default Constructor of Card (sets owner field)
@@ -131,9 +132,14 @@ public abstract class Creature extends Card implements Serializable, Cloneable {
 	 * enables movement, attack, abilities (should be called at turnstart)
 	 */
 	public void turnStart() {
-		actEffAv = 1;
-		AtkAv = bAtkAv;
-		moveAv = bMoveAv;
+		actEffAv = maxActEff;
+		if (!terrified && !stun) {
+			AtkAv = bAtkAv;
+		}
+		if (!root && !stun) moveAv = bMoveAv;
+		terrified = false;
+		stun = false;
+		root = false;
 	}
 	
 	/**
