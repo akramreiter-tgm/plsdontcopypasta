@@ -52,8 +52,9 @@ public abstract class Card implements Serializable, Cloneable {
 	 * @param board
 	 * @param location
 	 * @param player
+	 * @throws Exception 
 	 */
-	public void execute(String tr, Board board, String[] location, Player player) {
+	public void execute(String tr, Board board, String[] location, Player player) throws Exception {
 		executeNative(tr, board, location, player);
 		for (Effect e : remoteEffects) {
 			for (String s : e.getTrigger())
@@ -107,8 +108,9 @@ public abstract class Card implements Serializable, Cloneable {
 	 * @param (Board) board
 	 * @param (String[]) location
 	 * @param (Player) player
+	 * @throws Exception 
 	 */
-	public abstract void executeNative(String tr, Board board, String[] location, Player player);
+	public abstract void executeNative(String tr, Board board, String[] location, Player player) throws Exception;
 	
 	/**
 	 * sets current values back to base values

@@ -3,6 +3,7 @@ package deckBuilding.creature;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import communication.CommMsg;
 import deckBuilding.effect.PlaguePassive;
 import protocol.Coreprotocol;
 import protocol.resources.Board;
@@ -38,7 +39,7 @@ public class Plague02 extends Creature {
 	}
 
 	@Override
-	public void executeNative(String tr, Board board, String[] location, Player player) {
+	public void executeNative(String tr, Board board, String[] location, Player player) throws Exception{
 		hi: if (tr == "entry") {
 			System.out.println("starting entry");
 			ArrayList<String> tmp = new ArrayList<>(Arrays.asList(board.getAdjecent(location[0])));
@@ -55,7 +56,7 @@ public class Plague02 extends Creature {
 			}
 			if (tmp.size() == 0) break hi;
 			System.out.println("adding stuff to commQueue");
-			player.commQueue.add(tmp);
+			player.commQueue.add(new CommMsg("board", tmp.toArray(new String[0])));
 			System.out.println("getting input");
 			String s2 = Coreprotocol.getInput().toUpperCase();
 			System.out.println("actually executing stuff; available targets: " + tmp.size());
@@ -64,14 +65,13 @@ public class Plague02 extends Creature {
 				if (s2.startsWith(s)) {
 					try {
 						board.getCreature(s2).addRemoteEffect(new PlaguePassive());
-						System.out.println("is turnend triggered?: " + board.getCreature(s2).isEffectTriggered("turnend"));
+						break hi;
 					}catch (Exception e) {
 						// TODO: handle exception
 					}
 				}
 			}
 		}
-		System.out.println("executing remote effects");
 	}
 
 	@Override

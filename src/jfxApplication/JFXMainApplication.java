@@ -94,7 +94,7 @@ public class JFXMainApplication extends Application {
                     	}
                     	break;
                 }
-                DrawBoard(null);
+                drawBoard(null);
             }
         });
         BoardTest01.jfxapp = this;
@@ -161,7 +161,12 @@ public class JFXMainApplication extends Application {
 		}
 	}
 	
-	public void DrawBoard(CommBoard cb) {
+	/**
+	 * Draws the most recently received CommBoard
+	 * also calls function to display partView when displayedContent isn't "board"
+	 * @param cb
+	 */
+	public void drawBoard(CommBoard cb) {
 		if (cb != null) {
 			commBoard = cb;
 		} else {
@@ -287,6 +292,11 @@ public class JFXMainApplication extends Application {
 		}
 	}
 	
+	/**
+	 * grays out board draws by drawBoard(CommBoard).
+	 * Draws cards in CommCard[] cl over it.
+	 * @param cl
+	 */
 	public void DrawCardsInForeground(CommCard[] cl) {
 		graphicsContext.setFill(Color.rgb(0, 0, 0, 0.6));
 		graphicsContext.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);

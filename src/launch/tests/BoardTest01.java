@@ -43,16 +43,16 @@ public class BoardTest01 {
 		core.bd.sidedeck.remove("b");
 		core.bd.sidedeck.put("r",sdr);
 		core.bd.sidedeck.put("b",sdb);
-		Panel p = new Panel(core.bd);
+		//Panel p = new Panel(core.bd);
 		String[] str = core.bd.getOrderedFullBoard();
 		for (String s : str) {System.out.print(s + ", ");}
 		System.out.println();
 		Thread ct = new Thread(core);
-		Thread pt = new Thread(p);
+		//Thread pt = new Thread(p);
 		CommQueuePrinter cqp = new BoardTest01().new CommQueuePrinter(r, b);
 		Thread cq = new Thread(cqp);
 		ct.start();
-		pt.start();
+		//pt.start();
 		cq.start();
 		new Thread(new launchJFXThread()).start();
 		try {
@@ -63,7 +63,7 @@ public class BoardTest01 {
 		}
 		System.out.println("from boardTest: " + jfxapp.toString());
 		CommBoard ccb = new CommBoard(core.bd, null, "b");
-		jfxapp.DrawBoard(ccb);
+		jfxapp.drawBoard(ccb);
 		while (true) {
 			try {
 				@SuppressWarnings("resource")
@@ -73,7 +73,7 @@ public class BoardTest01 {
 				b.inputQueue.add(s);
 				Thread.sleep(100);
 				ccb = new CommBoard(core.bd, null, "b");
-				jfxapp.DrawBoard(ccb);
+				jfxapp.drawBoard(ccb);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -97,6 +97,7 @@ public class BoardTest01 {
 						System.out.println("------------------");
 						CommMsg cmg = (CommMsg) o;
 						System.out.println("red commqueue: " + cmg.description);
+						//System.out.print(cmg.content.getClass().toGenericString());
 						if (cmg.content instanceof int[]) {
 							for (int i : (int[]) cmg.content) {
 								System.out.print(i + ", ");
@@ -116,6 +117,7 @@ public class BoardTest01 {
 						System.out.println("------------------");
 						CommMsg cmg = (CommMsg) o;
 						System.out.println("blue commqueue: " + cmg.description);
+						//System.out.print(cmg.content.getClass().toGenericString());
 						if (cmg.content instanceof int[]) {
 							for (int i : (int[]) cmg.content) {
 								System.out.print(i + ", ");

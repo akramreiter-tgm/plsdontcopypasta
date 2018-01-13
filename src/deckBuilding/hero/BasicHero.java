@@ -35,7 +35,7 @@ public class BasicHero extends Hero {
 	}
 
 	@Override
-	public void executeNative(String tr, Board board, String[] location, Player player) {
+	public void executeNative(String tr, Board board, String[] location, Player player) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}
