@@ -29,7 +29,7 @@ public class JFXMainApplication extends Application {
 	
 	final static int CANVAS_WIDTH = 1280;
     final static int CANVAS_HEIGHT = 720;
-    static double TILE_HEIGHT = CANVAS_HEIGHT / 10;
+    static double TILE_HEIGHT = CANVAS_HEIGHT / 9.2;
 	
 	final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	final GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
@@ -73,6 +73,10 @@ public class JFXMainApplication extends Application {
 						if (second <= '0') break enc;
 						if (second > ('9' - Math.abs(first - 'E'))) break enc;
 						System.out.println(first + "" + second);
+					}
+					if ((y >= TILE_HEIGHT * 8.1)&&(y <= CANVAS_HEIGHT)) {
+						int handid = (int)((x - (0.1 * TILE_HEIGHT)) / (TILE_HEIGHT * 1.05));
+						System.out.println("hand"+handid);
 					}
 				}
 				
@@ -290,7 +294,7 @@ public class JFXMainApplication extends Application {
 		for (int i = 0; i < cb.hand.length; i++) {
 			CommCard cc = cb.hand[i];
 			double x = TILE_HEIGHT * 0.1 + i * TILE_HEIGHT * 1.05;
-			double y = TILE_HEIGHT * 8.8;
+			double y = TILE_HEIGHT * 8.1;
 			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
 			if (imgMap.get(cc.ctype + cc.cname) != null) {
 				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
