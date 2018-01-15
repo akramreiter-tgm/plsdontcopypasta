@@ -25,6 +25,7 @@ import launch.tests.BoardTest01;
 public class JFXMainApplication extends Application {
 	Integer size = 1000;
 	public HashMap<String,Image> imgMap = new HashMap<>();
+	public final BoardListener blisten = new BoardListener();
 	
 	final static int CANVAS_WIDTH = 1280;
     final static int CANVAS_HEIGHT = 720;
@@ -41,6 +42,9 @@ public class JFXMainApplication extends Application {
 
     @Override
     public void start(final Stage primaryStage) {
+        Thread bl = new Thread(blisten);
+        bl.start();
+        BoardTest01.jfxapp = this;
         initDraw(graphicsContext);
         Group root = new Group();
         VBox vBox = new VBox();
@@ -57,6 +61,21 @@ public class JFXMainApplication extends Application {
 			public void handle(MouseEvent event) {
 				double x = event.getSceneX();
 				double y = event.getSceneY();
+				//x board min = TH * 0.1
+				//x board max = TH * 9.1
+				//y board min = TH * 0.17
+				//y board max = TH * 7.73
+				enc: if (displayedContent == "board") {
+					if ((x >= TILE_HEIGHT * 0.1)&&(x <= TILE_HEIGHT * 9.1)&&(y >= 0.17 * TILE_HEIGHT)&&(y <= 7.73 * TILE_HEIGHT)) {
+						System.out.println(((y - (0.17 * TILE_HEIGHT)) / 0.84 / TILE_HEIGHT));
+						char first = (char)(((y - (0.17 * TILE_HEIGHT)) / 0.84 / TILE_HEIGHT) + 'A');
+						char second = (char)((x - (0.1 + Math.abs(first - 'E')) * TILE_HEIGHT / 2) / TILE_HEIGHT + '1');
+						if (second <= '0') break enc;
+						if (second > ('9' - Math.abs(first - 'E'))) break enc;
+						System.out.println(first + "" + second);
+					}
+				}
+				
 			}
 		});
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -106,10 +125,10 @@ public class JFXMainApplication extends Application {
                 drawBoard(null);
             }
         });
-        BoardTest01.jfxapp = this;
         System.out.println(this.toString());
         //graphicsContext.drawImage(imgMap.get("fog"), 400, 400);
         graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        primaryStage.getIcons().add(imgMap.get("fog"));
     }
     
     private void initDraw(GraphicsContext gc){
@@ -186,7 +205,7 @@ public class JFXMainApplication extends Application {
 		for (String s : cb.board.keySet()) {
 			try {
 				double x = Math.abs(s.charAt(0) - 'E') * TILE_HEIGHT / 2 + Math.abs(s.charAt(1) - '1') * TILE_HEIGHT + 10;
-				double y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 84 / 100 + 10;
+				double y = Math.abs(s.charAt(0) - 'A') * TILE_HEIGHT * 0.84 + 10;
 				//System.out.println("ground type " + cb.board.get(s).ground.gType + "(" + s + ") , drawn at x:" + x + " y:" + y);
 				switch (cb.board.get(s).ground.gType) {
 				case -1 : graphicsContext.drawImage(imgMap.get("fog"), x, y, TILE_HEIGHT, TILE_HEIGHT); break;

@@ -27,7 +27,11 @@ public class Movement {
 			String[] vr = bd.getVisionRange(c.owner);
 			String[] adjt = bd.getAdjecent(loc);
 			for (String s : adjt) {
-				if (bd.getCreature(s).taunt) return new String[0];
+				try {
+					if (bd.getCreature(s).taunt) return new String[0];
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
 			}
 			boolean fly = c.flying;
 			switch (c.mType) {
