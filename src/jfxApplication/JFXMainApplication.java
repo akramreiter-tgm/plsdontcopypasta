@@ -39,6 +39,9 @@ public class JFXMainApplication extends Application {
     double x0, y0, x1, y1;
     Image image;
 	private CommBoard commBoard;
+	private CommCard cdisplay;
+	private int xopt = -1;
+	private int yopt = -1;
 
     @Override
     public void start(final Stage primaryStage) {
@@ -51,7 +54,7 @@ public class JFXMainApplication extends Application {
         vBox.getChildren().addAll(canvas);
         root.getChildren().add(vBox);
         Scene scene = new Scene(root, CANVAS_WIDTH, CANVAS_HEIGHT);
-        primaryStage.setTitle("FreeBSD");
+        primaryStage.setTitle("NullPointer");
         primaryStage.setScene(scene);
         //primaryStage.setFullScreen(true);
         primaryStage.show();
@@ -73,11 +76,31 @@ public class JFXMainApplication extends Application {
 						if (second <= '0') break enc;
 						if (second > ('9' - Math.abs(first - 'E'))) break enc;
 						System.out.println(first + "" + second);
+						try {
+							cdisplay = commBoard.board.get(first+""+second).creature;
+						}catch (Exception e) {
+							// TODO: handle exception
+						}
 					}
 					if ((y >= TILE_HEIGHT * 8.1)&&(y <= CANVAS_HEIGHT)) {
 						int handid = (int)((x - (0.1 * TILE_HEIGHT)) / (TILE_HEIGHT * 1.05));
 						System.out.println("hand"+handid);
+						try {
+							cdisplay = commBoard.hand[handid];
+						}catch (Exception e) {
+							// TODO: handle exception
+						}
 					}
+				} else if ((xopt >= 0)&&(yopt >= 0)) {
+					//TODO 
+				} else {
+					int idx = (int)((x - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
+					int idy = (int)((y - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
+					if (idx < 0) idx = 0;
+					if (idx > 9) idx = 9;
+					if (idy < 0) idy = 0;
+					int idt = idy * 10 + idx;
+					System.out.println("id:"+idt);
 				}
 				
 			}
