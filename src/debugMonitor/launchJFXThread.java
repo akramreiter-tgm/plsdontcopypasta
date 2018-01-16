@@ -7,7 +7,6 @@ public class launchJFXThread implements Runnable {
 	@Override
 	public void run() {
 		JFXMainApplication.selflaunch();
-
 	}
 
 }

@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -25,10 +26,10 @@ import launch.tests.BoardTest01;
 public class JFXMainApplication extends Application {
 	Integer size = 1000;
 	public HashMap<String,Image> imgMap = new HashMap<>();
-	public final BoardListener blisten = new BoardListener();
+	public final BoardListener blisten = new BoardListener("r", "localhost");
 	
-	final static int CANVAS_WIDTH = 1280;
-    final static int CANVAS_HEIGHT = 720;
+	static int CANVAS_WIDTH = 845;
+    static int CANVAS_HEIGHT = 600;
     static double TILE_HEIGHT = CANVAS_HEIGHT / 9.2;
 	
 	final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -45,9 +46,11 @@ public class JFXMainApplication extends Application {
 
     @Override
     public void start(final Stage primaryStage) {
-        Thread bl = new Thread(blisten);
-        bl.start();
+        //Thread bl = new Thread(blisten);
+        //bl.start();
         BoardTest01.jfxapp = this;
+        primaryStage.setFullScreenExitHint("");
+        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         initDraw(graphicsContext);
         Group root = new Group();
         VBox vBox = new VBox();
@@ -148,6 +151,15 @@ public class JFXMainApplication extends Application {
                     		displayedContent = "enemyremoved";
                     	}
                     	break;
+                    case F:
+                    	primaryStage.setFullScreen(!primaryStage.isFullScreen());
+                    	if (primaryStage.isFullScreen()) {
+                    		setDim(primaryStage.getWidth(), primaryStage.getHeight());
+                    	} else {
+                    		setDim(primaryStage.getWidth(), primaryStage.getHeight() - 45);
+                    	}
+                    	canvas.setWidth(CANVAS_WIDTH);
+                    	canvas.setHeight(CANVAS_HEIGHT);
                 }
                 drawBoard(null);
             }
@@ -373,5 +385,11 @@ public class JFXMainApplication extends Application {
 	
 	public static void selflaunch() {
 		launch();
+	}
+	
+	public static void setDim(double w, double h) {
+		if (w > 0) CANVAS_WIDTH = (int) w;
+		if (h > 0) CANVAS_HEIGHT = (int) h;
+		TILE_HEIGHT = h / 9.2;
 	}
 }
