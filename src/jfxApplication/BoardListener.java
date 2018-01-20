@@ -38,7 +38,6 @@ public class BoardListener extends Player implements Runnable {
 		InetAddress iad = InetAddress.getByName(iaddress);
 		System.out.println("port:" + jo.get("port"));
 		Long l = (Long) jo.get("port");
-		endpoint = new Socket(iad, l.intValue());
-		//endpoint = new Socket(iad, new Jso)
+		//endpoint = new Socket(iad, l.intValue());
 	}
 }
