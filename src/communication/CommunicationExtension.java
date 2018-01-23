@@ -9,13 +9,15 @@ import java.net.UnknownHostException;
 
 import protocol.resources.Player;
 
-public class CommunicationExtension {
+public class CommunicationExtension extends Player {
+	private static final long serialVersionUID = 6368853442270136399L;
 	protected Player endPoint;
 	protected Socket conn1, conn2;
 	protected ObjectInputStream in;
 	protected ObjectOutputStream out;
 	
-	public CommunicationExtension(String targIp, int port) throws UnknownHostException, IOException {
+	public CommunicationExtension(String name, String targIp, int port) throws UnknownHostException, IOException {
+		super(name);
 		conn1 = new Socket(targIp, port);
 		conn1.bind(new InetSocketAddress(targIp, port));
 		try {

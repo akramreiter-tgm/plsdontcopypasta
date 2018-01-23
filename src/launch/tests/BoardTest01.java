@@ -28,11 +28,11 @@ public class BoardTest01 {
 		CardList sdr = new CardList();
 		CardList sdb = new CardList();
 		String[] cards = new String[] {"creature.plague01","creature.plague02"};
-		for (@SuppressWarnings("unused") int i : new int[45]) {
+		for (int i : new int[45]) {
 			dr.addToDeck(CardFactory.createCard(cards[(int)(cards.length * Math.random())], "r"));
 			db.addToDeck(CardFactory.createCard(cards[(int)(cards.length * Math.random())], "b"));
 		}
-		for (@SuppressWarnings("unused") int i : new int[10]) {
+		for (int i : new int[10]) {
 			sdr.add(new SampleUltCreature("r"));
 			sdb.add(new SampleUltCreature("b"));
 		}
@@ -61,6 +61,13 @@ public class BoardTest01 {
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}
+		while (jfxapp == null) {
+			try {
+				Thread.sleep(100);
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 		System.out.println("from boardTest: " + jfxapp.toString());
 		CommBoard ccb = new CommBoard(core.bd, null, "r");

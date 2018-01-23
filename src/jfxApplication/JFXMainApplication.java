@@ -28,8 +28,8 @@ public class JFXMainApplication extends Application {
 	public HashMap<String,Image> imgMap = new HashMap<>();
 	public final BoardListener blisten = new BoardListener("r", "localhost");
 	
-	static int CANVAS_WIDTH = 845;
-    static int CANVAS_HEIGHT = 600;
+	static int CANVAS_WIDTH = 1315;
+    static int CANVAS_HEIGHT = 720;
     static double TILE_HEIGHT = CANVAS_HEIGHT / 9.2;
 	
 	final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -38,30 +38,29 @@ public class JFXMainApplication extends Application {
 	String displayedContent = "board";
 
     double x0, y0, x1, y1;
-    Image image;
 	private CommBoard commBoard;
 	private CommCard cdisplay;
 	private int xopt = -1;
 	private int yopt = -1;
+	private Scene boardScene;
 
     @Override
     public void start(final Stage primaryStage) {
         //Thread bl = new Thread(blisten);
         //bl.start();
-        BoardTest01.jfxapp = this;
         primaryStage.setFullScreenExitHint("");
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-        initDraw(graphicsContext);
+        loadGeneralTiles();
         Group root = new Group();
         VBox vBox = new VBox();
         vBox.getChildren().addAll(canvas);
         root.getChildren().add(vBox);
-        Scene scene = new Scene(root, CANVAS_WIDTH, CANVAS_HEIGHT);
+        boardScene = new Scene(root, CANVAS_WIDTH, CANVAS_HEIGHT);
         primaryStage.setTitle("NullPointer");
-        primaryStage.setScene(scene);
+        primaryStage.setScene(boardScene);
         //primaryStage.setFullScreen(true);
         primaryStage.show();
-        scene.setOnMouseReleased(new EventHandler<MouseEvent>() {
+        boardScene.setOnMouseReleased(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent event) {
@@ -73,7 +72,6 @@ public class JFXMainApplication extends Application {
 				//y board max = TH * 7.73
 				enc: if (displayedContent == "board") {
 					if ((x >= TILE_HEIGHT * 0.1)&&(x <= TILE_HEIGHT * 9.1)&&(y >= 0.17 * TILE_HEIGHT)&&(y <= 7.73 * TILE_HEIGHT)) {
-						System.out.println(((y - (0.17 * TILE_HEIGHT)) / 0.84 / TILE_HEIGHT));
 						char first = (char)(((y - (0.17 * TILE_HEIGHT)) / 0.84 / TILE_HEIGHT) + 'A');
 						char second = (char)((x - (0.1 + Math.abs(first - 'E')) * TILE_HEIGHT / 2) / TILE_HEIGHT + '1');
 						if (second <= '0') break enc;
@@ -81,8 +79,9 @@ public class JFXMainApplication extends Application {
 						System.out.println(first + "" + second);
 						try {
 							cdisplay = commBoard.board.get(first+""+second).creature;
+							System.out.println("new cdisplay");
 						}catch (Exception e) {
-							// TODO: handle exception
+							System.out.println("no valid cdisplay found (expected)");
 						}
 					}
 					if ((y >= TILE_HEIGHT * 8.1)&&(y <= CANVAS_HEIGHT)) {
@@ -90,12 +89,13 @@ public class JFXMainApplication extends Application {
 						System.out.println("hand"+handid);
 						try {
 							cdisplay = commBoard.hand[handid];
+							System.out.println("new cdisplay");
 						}catch (Exception e) {
-							// TODO: handle exception
+							System.out.println("no valid cdisplay found (expected)");
 						}
 					}
 				} else if ((xopt >= 0)&&(yopt >= 0)) {
-					//TODO 
+					//TODO write stuff that handles this THIS IS AN ACTUAL TODO DON'T DELETE THIS
 				} else {
 					int idx = (int)((x - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
 					int idy = (int)((y - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
@@ -103,12 +103,33 @@ public class JFXMainApplication extends Application {
 					if (idx > 9) idx = 9;
 					if (idy < 0) idy = 0;
 					int idt = idy * 10 + idx;
-					System.out.println("id:"+idt);
+					System.out.println(displayedContent+idt);
+					try {
+						switch (displayedContent) {
+						case "grave":
+							cdisplay = commBoard.grave[idt];
+							break;
+						case "removed":
+							cdisplay = commBoard.removed[idt];
+							break;
+						case "deck":
+							cdisplay = commBoard.deck[idt];
+							break;
+						case "enemygrave":
+							cdisplay = commBoard.enemygrave[idt];
+							break;
+						case "enemyremoved":
+							cdisplay = commBoard.enemyremoved[idt];
+							break;
+						}
+					}catch (Exception e) {
+						System.out.println("no valid cdisplay found (expected)");
+					}
 				}
-				
+				drawBoard(null);
 			}
 		});
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+        boardScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @SuppressWarnings("incomplete-switch")
 			@Override
             public void handle(KeyEvent event) {
@@ -168,27 +189,7 @@ public class JFXMainApplication extends Application {
         //graphicsContext.drawImage(imgMap.get("fog"), 400, 400);
         graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         primaryStage.getIcons().add(imgMap.get("fog"));
-    }
-    
-    private void initDraw(GraphicsContext gc){
-    	loadGeneralTiles();
-        double canvasWidth = gc.getCanvas().getWidth();
-        double canvasHeight = gc.getCanvas().getHeight();
-        
-        gc.setFill(Color.LIGHTGRAY);
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(5);
-
-        gc.fill();
-        gc.strokeRect(
-                0,              //x of the upper left corner
-                0,              //y of the upper left corner
-                canvasWidth,    //width of the rectangle
-                canvasHeight);  //height of the rectangle
-
-        gc.setLineWidth(1);
-        
-        image = imgMap.get("res1");
+        BoardTest01.jfxapp = this;
     }
 	
 	public boolean loadTile(String cat, String name) {
@@ -220,6 +221,9 @@ public class JFXMainApplication extends Application {
 			imgMap.put("esrcv", new Image(new FileInputStream(new File("resources\\general\\energySourceVoid.png"))));
 			imgMap.put("land", new Image(new FileInputStream(new File("resources\\general\\landImg.png"))));
 			imgMap.put("cardframe", new Image(new FileInputStream(new File("resources\\general\\cardFrame.png"))));
+			imgMap.put("deck", new Image(new FileInputStream(new File("resources\\general\\deck.png"))));
+			imgMap.put("removed", new Image(new FileInputStream(new File("resources\\general\\removed.png"))));
+			imgMap.put("grave", new Image(new FileInputStream(new File("resources\\general\\grave.png"))));
 			for (int i = 0; i < 10; i++) {
 				imgMap.put("char" + i, new Image(new FileInputStream(new File("resources\\general\\font\\" + i + ".png"))));
 			}
@@ -239,7 +243,6 @@ public class JFXMainApplication extends Application {
 		} else {
 			cb = commBoard;
 		}
-		System.out.println("drawing cb");
 		graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		for (String s : cb.board.keySet()) {
 			try {
@@ -294,7 +297,6 @@ public class JFXMainApplication extends Application {
 					int health = cc.health;
 					if (attack == 0) atk.add(0);
 					if (health == 0) hp.add(0);
-					System.out.println(health);
 					while (attack > 0) {
 						atk.add(attack % 10);
 						attack = attack / 10;
@@ -304,7 +306,6 @@ public class JFXMainApplication extends Application {
 						health = health / 10;
 					}
 					
-					System.out.println(cc.cname + ": " + cc.atk + " Atk, " + cc.health + " Health");
 					for (int i = 0; i < atk.size(); i++) {
 						graphicsContext.drawImage(imgMap.get("char"+atk.get(atk.size() - 1 - i).toString()), x + TILE_HEIGHT * (0.18 * i + 0.05), y + TILE_HEIGHT * 0.65, TILE_HEIGHT * 0.25, TILE_HEIGHT * 0.35);
 					}
@@ -356,6 +357,11 @@ public class JFXMainApplication extends Application {
 		case "enemyremoved":
 			DrawCardsInForeground(cb.enemyremoved);
 			break;
+		}
+		try {
+			graphicsContext.drawImage(imgMap.get(cdisplay.ctype + cdisplay.cname), (11.2 * TILE_HEIGHT), (0.2 * TILE_HEIGHT), TILE_HEIGHT * 2, TILE_HEIGHT * 2);
+		}catch (Exception e) {
+			System.out.println("expected nullPointer");
 		}
 	}
 	

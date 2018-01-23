@@ -35,7 +35,7 @@ public class BoardListener extends Player implements Runnable {
 	public void initSocket(String iaddress) throws Exception {
 		JSONParser jp = new JSONParser();
 		JSONObject jo = (JSONObject) jp.parse(new FileReader(new File("config\\network.json")));
-		InetAddress iad = InetAddress.getByName(iaddress);
+		//InetAddress iad = InetAddress.getByName(iaddress);
 		System.out.println("port:" + jo.get("port"));
 		Long l = (Long) jo.get("port");
 		//endpoint = new Socket(iad, l.intValue());
