@@ -82,6 +82,14 @@ public class CommBoard implements Serializable, Cloneable {
 		}
 		enemygrave = new CommCard[bd.grave.get(p2name).size()];
 		enemyremoved = new CommCard[bd.removed.get(p2name).size()];
+		cd = bd.grave.get(p2name).get();
+		for (int i = 0; i < cd.size(); i++) {
+			enemygrave[i] = new CommCard(cd.get(i), bd, "");
+		}
+		cd = bd.removed.get(p2name).get();
+		for (int i = 0; i < cd.size(); i++) {
+			enemyremoved[i] = new CommCard(cd.get(i), bd, "");
+		}
 		enemyhandsize = bd.hand.get(p2name).size();
 		enemydecksize = bd.deck.get(p2name).deck.size();
 		energygain = bd.resources.get(pname)[1];

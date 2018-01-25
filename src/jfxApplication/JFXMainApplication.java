@@ -17,6 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -42,6 +43,7 @@ public class JFXMainApplication extends Application {
 	private CommCard cdisplay;
 	private int xopt = -1;
 	private int yopt = -1;
+	private int optlen = 0;
 	private Scene boardScene;
 
     @Override
@@ -64,6 +66,7 @@ public class JFXMainApplication extends Application {
 
 			@Override
 			public void handle(MouseEvent event) {
+				boolean lcl = event.getButton()==MouseButton.PRIMARY;
 				double x = event.getSceneX();
 				double y = event.getSceneY();
 				//x board min = TH * 0.1
@@ -85,7 +88,7 @@ public class JFXMainApplication extends Application {
 						}
 					}
 					if ((y >= TILE_HEIGHT * 8.1)&&(y <= CANVAS_HEIGHT)) {
-						int handid = (int)((x - (0.1 * TILE_HEIGHT)) / (TILE_HEIGHT * 1.05));
+						int handid = (int)((x - (0.1 * TILE_HEIGHT)) / (TILE_HEIGHT * 0.95));
 						System.out.println("hand"+handid);
 						try {
 							cdisplay = commBoard.hand[handid];
@@ -94,15 +97,47 @@ public class JFXMainApplication extends Application {
 							System.out.println("no valid cdisplay found (expected)");
 						}
 					}
+					
+					if ((y >= TILE_HEIGHT * 6.5)&&(y <= TILE_HEIGHT * 7.8)&&(x >= 9.6 * TILE_HEIGHT)&&(x <= 13.5 * TILE_HEIGHT)&&(lcl)) {
+						System.out.println("cl area: 0," + (int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT));
+						switch ((int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT)) {
+						case 0:
+							displayedContent = "deck";
+							break;
+						case 1:
+							displayedContent = "grave";
+							break;
+						case 2:
+							displayedContent = "enemygrave";
+							break;
+						}
+					}
+					if ((y >= TILE_HEIGHT * 7.8)&&(y <= TILE_HEIGHT * 9.1)&&(x >= 9.6 * TILE_HEIGHT)&&(x <= 13.5 * TILE_HEIGHT)&&(lcl)) {
+						System.out.println("cl area: 1," + (int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT));
+						switch ((int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT)) {
+						case 0:
+							displayedContent = "side";
+							break;
+						case 1:
+							displayedContent = "removed";
+							break;
+						case 2:
+							displayedContent = "enemyremoved";
+							break;
+						}
+					}
+					
 				} else if ((xopt >= 0)&&(yopt >= 0)) {
-					//TODO write stuff that handles this THIS IS AN ACTUAL TODO DON'T DELETE THIS
+					
 				} else {
 					int idx = (int)((x - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
 					int idy = (int)((y - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
 					if (idx < 0) idx = 0;
-					if (idx > 9) idx = 9;
+					if (idx > 7) {
+						displayedContent = "board";
+					}
 					if (idy < 0) idy = 0;
-					int idt = idy * 10 + idx;
+					int idt = idy * 8 + idx;
 					System.out.println(displayedContent+idt);
 					try {
 						switch (displayedContent) {
@@ -121,8 +156,12 @@ public class JFXMainApplication extends Application {
 						case "enemyremoved":
 							cdisplay = commBoard.enemyremoved[idt];
 							break;
+						case "side":
+							cdisplay = commBoard.side[idt];
+							break;
 						}
 					}catch (Exception e) {
+						displayedContent = "board";
 						System.out.println("no valid cdisplay found (expected)");
 					}
 				}
@@ -170,6 +209,13 @@ public class JFXMainApplication extends Application {
                     		displayedContent = "board";
                     	} else {
                     		displayedContent = "enemyremoved";
+                    	}
+                    	break;
+                    case S:
+                    	if (displayedContent.startsWith("side")) {
+                    		displayedContent = "board";
+                    	} else {
+                    		displayedContent = "side";
                     	}
                     	break;
                     case F:
@@ -224,6 +270,9 @@ public class JFXMainApplication extends Application {
 			imgMap.put("deck", new Image(new FileInputStream(new File("resources\\general\\deck.png"))));
 			imgMap.put("removed", new Image(new FileInputStream(new File("resources\\general\\removed.png"))));
 			imgMap.put("grave", new Image(new FileInputStream(new File("resources\\general\\grave.png"))));
+			imgMap.put("side", new Image(new FileInputStream(new File("resources\\general\\side.png"))));
+			imgMap.put("engrave", new Image(new FileInputStream(new File("resources\\general\\engrave.png"))));
+			imgMap.put("enremoved", new Image(new FileInputStream(new File("resources\\general\\enremoved.png"))));
 			for (int i = 0; i < 10; i++) {
 				imgMap.put("char" + i, new Image(new FileInputStream(new File("resources\\general\\font\\" + i + ".png"))));
 			}
@@ -329,18 +378,29 @@ public class JFXMainApplication extends Application {
 		}
 		for (int i = 0; i < cb.hand.length; i++) {
 			CommCard cc = cb.hand[i];
-			double x = TILE_HEIGHT * 0.1 + i * TILE_HEIGHT * 1.05;
+			double x = TILE_HEIGHT * 0.1 + i * TILE_HEIGHT * 0.95;
 			double y = TILE_HEIGHT * 8.1;
-			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
 			if (imgMap.get(cc.ctype + cc.cname) != null) {
-				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
 			}
 			else {
 				if (loadTile(cc.ctype, cc.cname)) {
-					graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+					graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
 				}
 			}
 		}
+		try {
+			graphicsContext.drawImage(imgMap.get("deck"), TILE_HEIGHT * 9.6, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
+			graphicsContext.drawImage(imgMap.get("side"), TILE_HEIGHT * 9.6, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
+			graphicsContext.drawImage(imgMap.get("grave"), TILE_HEIGHT * 10.9, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
+			graphicsContext.drawImage(imgMap.get("removed"), TILE_HEIGHT * 10.9, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
+			graphicsContext.drawImage(imgMap.get("engrave"), TILE_HEIGHT * 12.2, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
+			graphicsContext.drawImage(imgMap.get("enremoved"), TILE_HEIGHT * 12.2, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+			
 		switch (displayedContent) {
 		case "grave":
 			DrawCardsInForeground(cb.grave);
@@ -357,9 +417,11 @@ public class JFXMainApplication extends Application {
 		case "enemyremoved":
 			DrawCardsInForeground(cb.enemyremoved);
 			break;
+		case "side":
+			DrawCardsInForeground(cb.side);
 		}
 		try {
-			graphicsContext.drawImage(imgMap.get(cdisplay.ctype + cdisplay.cname), (11.2 * TILE_HEIGHT), (0.2 * TILE_HEIGHT), TILE_HEIGHT * 2, TILE_HEIGHT * 2);
+			graphicsContext.drawImage(imgMap.get(cdisplay.ctype + cdisplay.cname), (10.1 * TILE_HEIGHT), (0.2 * TILE_HEIGHT), TILE_HEIGHT * 2, TILE_HEIGHT * 2);
 		}catch (Exception e) {
 			System.out.println("expected nullPointer");
 		}
@@ -375,16 +437,13 @@ public class JFXMainApplication extends Application {
 		graphicsContext.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		for (int i = 0; i < cl.length; i++) {
 			CommCard cc = cl[i];
-			double x = TILE_HEIGHT * 0.2 + (i % 10) * TILE_HEIGHT * 1.1;
-			double y = TILE_HEIGHT * (i / 10) * 1.1 + TILE_HEIGHT * 0.2;
+			double x = TILE_HEIGHT * 0.2 + (i % 8) * TILE_HEIGHT * 1.1;
+			double y = TILE_HEIGHT * (i / 8) * 1.1 + TILE_HEIGHT * 0.2;
 			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
 			if (imgMap.get(cc.ctype + cc.cname) != null) {
 				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
-			}
-			else {
-				if (loadTile(cc.ctype, cc.cname)) {
-					graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
-				}
+			} else if (loadTile(cc.ctype, cc.cname)) {
+				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
 			}
 		}
 	}
