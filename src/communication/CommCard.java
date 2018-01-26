@@ -43,6 +43,14 @@ public class CommCard implements Serializable, Cloneable, Comparable<CommCard> {
 		ctype = c.getCType();
 		cname = c.getCName();
 		tags = c.getTags();
+		if (loc.startsWith("hand")) {
+			int[] av = bd.fromhand.getPlayableCards(c.owner);
+			for (int i : av) {
+				if (bd.hand.get(c.owner).get(i).equals(c)) {
+					addTag("playable");
+				}
+			}
+		}
 		if ((c.getCType().contains("creature"))||(c.getCType().contains("hero"))) {
 			Creature cr = (Creature) c;
 			atk = cr.getcAttack();

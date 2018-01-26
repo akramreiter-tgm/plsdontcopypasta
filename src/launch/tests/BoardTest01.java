@@ -19,9 +19,26 @@ public class BoardTest01 {
 	
 	public static JFXMainApplication jfxapp;
 	
+	@SuppressWarnings("serial")
 	public static void main(String[] args) {
-		Player r = new Player("r");
-		Player b = new Player("b");
+		Player r = new Player("r") {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		Player b = new Player("b") {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
 		Coreprotocol core = new Coreprotocol(new Player[] {r,b}, 120);
 		Deck dr = new Deck();
 		Deck db = new Deck();

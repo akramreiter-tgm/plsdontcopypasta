@@ -171,9 +171,9 @@ public class Activation {
 				}
 			}else if(targ.startsWith("deck")){
 				try {
-					int tIndex = Integer.parseInt(targ.substring(4));
+					String tname = targ.substring(4);
 					for (int i : getAvActCardsDeck(p.pname)) {
-						if (i == tIndex) {
+						if (bd.deck.get(p.pname).get(i).getCName() == tname) {
 							bd.deck.get(p.pname).get(i).execute("activedeck", bd, new String[] {i+""}, p);
 						}
 					}

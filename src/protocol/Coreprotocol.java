@@ -3,6 +3,7 @@ package protocol;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import communication.CommBoard;
 import communication.CommMsg;
 import protocol.resources.Board;
 import protocol.resources.Player;
@@ -124,16 +125,19 @@ public class Coreprotocol implements Runnable{
 						} else if (ci.startsWith("activebd")) {
 							cp.commQueue.add(new CommMsg("actboard", bd.activation.getAvActCardsBoard(cp.pname)));
 						} else if (ci.startsWith("grave")) {
-							//TODO add activateable cards in grave
+							cp.commQueue.add(new CommMsg("actgrave", bd.activation.getAvActCardsGrave(cp.pname)));
 						} else if (ci.startsWith("deck")) {
 							//TODO add activateable cards in deck
 						} else if (ci.startsWith("removed")) {
-							//TODO add activateable cards in removed
+							cp.commQueue.add(new CommMsg("actgrave", bd.activation.getAvActCardsRemoved(cp.pname)));
 						} else if (ci.startsWith("move")) {
 							cp.commQueue.add(new CommMsg("cardsboard", bd.movement.getMoveOrAttackAvCreatures(cp.pname))); //TODO add activateable cards on board
 						}
 					}
 					if (ci.startsWith("surr")) System.exit(0); //TODO handle the situation of a player surrendering properly instead of just quitting
+					for (Player p:players) {
+						p.commQueue.add(new CommBoard(bd, null, p.pname));
+					}
 				}catch (Exception e) {
 					e.printStackTrace();
 				}

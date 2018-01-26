@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import communication.CommBoard;
 import communication.CommCard;
@@ -27,7 +28,7 @@ import launch.tests.BoardTest01;
 public class JFXMainApplication extends Application {
 	Integer size = 1000;
 	public HashMap<String,Image> imgMap = new HashMap<>();
-	public final BoardListener blisten = new BoardListener("r", "localhost");
+	public final BoardListener blisten = new BoardListener (this, "r");
 	
 	static int CANVAS_WIDTH = 1315;
     static int CANVAS_HEIGHT = 720;
@@ -39,12 +40,13 @@ public class JFXMainApplication extends Application {
 	String displayedContent = "board";
 
     double x0, y0, x1, y1;
-	private CommBoard commBoard;
+	public CommBoard commBoard;
 	private CommCard cdisplay;
-	private int xopt = -1;
-	private int yopt = -1;
-	private int optlen = 0;
+	private double xopt = -1;
+	private double yopt = -1;
+	private String[] opt = new String[0];
 	private Scene boardScene;
+	public boolean targMode = false;
 
     @Override
     public void start(final Stage primaryStage) {
@@ -73,7 +75,7 @@ public class JFXMainApplication extends Application {
 				//x board max = TH * 9.1
 				//y board min = TH * 0.17
 				//y board max = TH * 7.73
-				enc: if (displayedContent == "board") {
+				enc: if ((displayedContent == "board")&&((xopt < 0)||(yopt < 0))) {
 					if ((x >= TILE_HEIGHT * 0.1)&&(x <= TILE_HEIGHT * 9.1)&&(y >= 0.17 * TILE_HEIGHT)&&(y <= 7.73 * TILE_HEIGHT)) {
 						char first = (char)(((y - (0.17 * TILE_HEIGHT)) / 0.84 / TILE_HEIGHT) + 'A');
 						char second = (char)((x - (0.1 + Math.abs(first - 'E')) * TILE_HEIGHT / 2) / TILE_HEIGHT + '1');
@@ -83,6 +85,16 @@ public class JFXMainApplication extends Application {
 						try {
 							cdisplay = commBoard.board.get(first+""+second).creature;
 							System.out.println("new cdisplay");
+							blisten.amendNextMsg("board"+first + ""+ second);
+							if (lcl&& !targMode) {
+								setOpt(cdisplay);
+								if (opt.length > 0) {
+									xopt = x;
+									yopt = y;
+								}
+							} else {
+								targMode = false;
+							}
 						}catch (Exception e) {
 							System.out.println("no valid cdisplay found (expected)");
 						}
@@ -93,14 +105,24 @@ public class JFXMainApplication extends Application {
 						try {
 							cdisplay = commBoard.hand[handid];
 							System.out.println("new cdisplay");
+							blisten.amendNextMsg("hand"+handid);
+							if (lcl&& !targMode) {
+								setOpt(cdisplay);
+								if (opt.length > 0) {
+									xopt = x;
+									yopt = y;
+								}
+							} else {
+								targMode = false;
+							}
 						}catch (Exception e) {
 							System.out.println("no valid cdisplay found (expected)");
 						}
 					}
 					
-					if ((y >= TILE_HEIGHT * 6.5)&&(y <= TILE_HEIGHT * 7.8)&&(x >= 9.6 * TILE_HEIGHT)&&(x <= 13.5 * TILE_HEIGHT)&&(lcl)) {
-						System.out.println("cl area: 0," + (int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT));
-						switch ((int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT)) {
+					if ((y >= TILE_HEIGHT * 6.5)&&(y <= TILE_HEIGHT * 7.8)&&(x >= 10.6 * TILE_HEIGHT)&&(x <= 14.35 * TILE_HEIGHT)&&(lcl)) {
+						System.out.println("cl area: 0," + (int)((x - 10.6 * TILE_HEIGHT) / 1.25 / TILE_HEIGHT));
+						switch ((int)((x - 10.6 * TILE_HEIGHT) / 1.25 / TILE_HEIGHT)) {
 						case 0:
 							displayedContent = "deck";
 							break;
@@ -112,9 +134,9 @@ public class JFXMainApplication extends Application {
 							break;
 						}
 					}
-					if ((y >= TILE_HEIGHT * 7.8)&&(y <= TILE_HEIGHT * 9.1)&&(x >= 9.6 * TILE_HEIGHT)&&(x <= 13.5 * TILE_HEIGHT)&&(lcl)) {
-						System.out.println("cl area: 1," + (int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT));
-						switch ((int)((x - 9.6 * TILE_HEIGHT) / 1.3 / TILE_HEIGHT)) {
+					if ((y >= TILE_HEIGHT * 7.8)&&(y <= TILE_HEIGHT * 9.1)&&(x >= 10.6 * TILE_HEIGHT)&&(x <= 14.35 * TILE_HEIGHT)&&(lcl)) {
+						System.out.println("cl area: 1," + (int)((x - 10.6 * TILE_HEIGHT) / 1.25 / TILE_HEIGHT));
+						switch ((int)((x - 10.6 * TILE_HEIGHT) / 1.25 / TILE_HEIGHT)) {
 						case 0:
 							displayedContent = "side";
 							break;
@@ -128,16 +150,30 @@ public class JFXMainApplication extends Application {
 					}
 					
 				} else if ((xopt >= 0)&&(yopt >= 0)) {
-					
+					double ymin = yopt - opt.length * TILE_HEIGHT * 0.375;
+					double ymax = yopt + opt.length * TILE_HEIGHT * 0.375;
+					if (!(y < ymin || y > ymax || x < xopt || x > xopt + TILE_HEIGHT * 1.5)&&lcl) {
+						try {
+							int index = (int)((y - ymin) / TILE_HEIGHT / 0.75);
+							System.out.println(opt[index]);
+							blisten.amendNextMsg(opt[index]);
+						}catch (Exception e) {
+							// TODO: handle exception
+						}
+					}
+					yopt = -1;
+					xopt = -1;
+					opt = new String[0];
 				} else {
-					int idx = (int)((x - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
-					int idy = (int)((y - (0.1 * TILE_HEIGHT))/(TILE_HEIGHT * 1.1));
+					int idx = (int)((x - (0.175 * TILE_HEIGHT))/(TILE_HEIGHT * 0.95));
+					int idy = (int)((y - (0.175 * TILE_HEIGHT))/(TILE_HEIGHT * 0.95));
 					if (idx < 0) idx = 0;
-					if (idx > 7) {
+					if (idx > 9) {
 						displayedContent = "board";
+						break enc;
 					}
 					if (idy < 0) idy = 0;
-					int idt = idy * 8 + idx;
+					int idt = idy * 10 + idx;
 					System.out.println(displayedContent+idt);
 					try {
 						switch (displayedContent) {
@@ -160,6 +196,16 @@ public class JFXMainApplication extends Application {
 							cdisplay = commBoard.side[idt];
 							break;
 						}
+						if (lcl&& !targMode) {
+							setOpt(cdisplay);
+							if (opt.length > 0) {
+								xopt = x;
+								yopt = y;
+							}
+						} else {
+							targMode = false;
+						}
+						blisten.amendNextMsg(displayedContent+idt);
 					}catch (Exception e) {
 						displayedContent = "board";
 						System.out.println("no valid cdisplay found (expected)");
@@ -273,6 +319,8 @@ public class JFXMainApplication extends Application {
 			imgMap.put("side", new Image(new FileInputStream(new File("resources\\general\\side.png"))));
 			imgMap.put("engrave", new Image(new FileInputStream(new File("resources\\general\\engrave.png"))));
 			imgMap.put("enremoved", new Image(new FileInputStream(new File("resources\\general\\enremoved.png"))));
+			imgMap.put("optmove", new Image(new FileInputStream(new File("resources\\general\\optmove.png"))));
+			imgMap.put("optexec", new Image(new FileInputStream(new File("resources\\general\\optexec.png"))));
 			for (int i = 0; i < 10; i++) {
 				imgMap.put("char" + i, new Image(new FileInputStream(new File("resources\\general\\font\\" + i + ".png"))));
 			}
@@ -378,25 +426,25 @@ public class JFXMainApplication extends Application {
 		}
 		for (int i = 0; i < cb.hand.length; i++) {
 			CommCard cc = cb.hand[i];
-			double x = TILE_HEIGHT * 0.1 + i * TILE_HEIGHT * 0.95;
+			double x = TILE_HEIGHT * 0.1 + i * TILE_HEIGHT * 1.05;
 			double y = TILE_HEIGHT * 8.1;
-			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
+			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
 			if (imgMap.get(cc.ctype + cc.cname) != null) {
-				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
+				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
 			}
 			else {
 				if (loadTile(cc.ctype, cc.cname)) {
-					graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
+					graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
 				}
 			}
 		}
 		try {
-			graphicsContext.drawImage(imgMap.get("deck"), TILE_HEIGHT * 9.6, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
-			graphicsContext.drawImage(imgMap.get("side"), TILE_HEIGHT * 9.6, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
-			graphicsContext.drawImage(imgMap.get("grave"), TILE_HEIGHT * 10.9, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
-			graphicsContext.drawImage(imgMap.get("removed"), TILE_HEIGHT * 10.9, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
-			graphicsContext.drawImage(imgMap.get("engrave"), TILE_HEIGHT * 12.2, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
-			graphicsContext.drawImage(imgMap.get("enremoved"), TILE_HEIGHT * 12.2, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.25, TILE_HEIGHT * 1.25);
+			graphicsContext.drawImage(imgMap.get("deck"), TILE_HEIGHT * 10.6, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.2, TILE_HEIGHT * 1.2);
+			graphicsContext.drawImage(imgMap.get("side"), TILE_HEIGHT * 10.6, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.2, TILE_HEIGHT * 1.2);
+			graphicsContext.drawImage(imgMap.get("grave"), TILE_HEIGHT * 11.85, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.2, TILE_HEIGHT * 1.2);
+			graphicsContext.drawImage(imgMap.get("removed"), TILE_HEIGHT * 11.85, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.2, TILE_HEIGHT * 1.2);
+			graphicsContext.drawImage(imgMap.get("engrave"), TILE_HEIGHT * 13.1, TILE_HEIGHT * 6.5, TILE_HEIGHT * 1.2, TILE_HEIGHT * 1.2);
+			graphicsContext.drawImage(imgMap.get("enremoved"), TILE_HEIGHT * 13.1, TILE_HEIGHT * 7.8, TILE_HEIGHT * 1.2, TILE_HEIGHT * 1.2);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -421,9 +469,27 @@ public class JFXMainApplication extends Application {
 			DrawCardsInForeground(cb.side);
 		}
 		try {
-			graphicsContext.drawImage(imgMap.get(cdisplay.ctype + cdisplay.cname), (10.1 * TILE_HEIGHT), (0.2 * TILE_HEIGHT), TILE_HEIGHT * 2, TILE_HEIGHT * 2);
+			graphicsContext.drawImage(imgMap.get(cdisplay.ctype + cdisplay.cname), (9.4 * TILE_HEIGHT), (0.2 * TILE_HEIGHT), TILE_HEIGHT * 2, TILE_HEIGHT * 2);
 		}catch (Exception e) {
 			System.out.println("expected nullPointer");
+		}
+		if ((xopt > 0) && (yopt > 0)) {
+			try {
+				double negy = opt.length * TILE_HEIGHT * 0.375;
+				for (int i = 0; i < opt.length; i++) {
+					switch (opt[i]) {
+					case "atkav":
+					case "moveav":
+						graphicsContext.drawImage(imgMap.get("optmove"), xopt, yopt - negy + TILE_HEIGHT * i * 0.75, TILE_HEIGHT * 1.5, TILE_HEIGHT * 0.75);
+						break;
+					case "acteffav":
+						graphicsContext.drawImage(imgMap.get("optexec"), xopt, yopt - negy + TILE_HEIGHT * i * 0.75, TILE_HEIGHT * 1.5, TILE_HEIGHT * 0.75);
+						break;
+					}
+				}
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 	}
 	
@@ -437,13 +503,13 @@ public class JFXMainApplication extends Application {
 		graphicsContext.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		for (int i = 0; i < cl.length; i++) {
 			CommCard cc = cl[i];
-			double x = TILE_HEIGHT * 0.2 + (i % 8) * TILE_HEIGHT * 1.1;
-			double y = TILE_HEIGHT * (i / 8) * 1.1 + TILE_HEIGHT * 0.2;
-			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT, TILE_HEIGHT);
+			double x = TILE_HEIGHT * 0.2 + (i % 10) * TILE_HEIGHT * 0.95;
+			double y = TILE_HEIGHT * 0.95 * (i / 10) + TILE_HEIGHT * 0.2;
+			graphicsContext.drawImage(imgMap.get("cardframe"), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
 			if (imgMap.get(cc.ctype + cc.cname) != null) {
-				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
 			} else if (loadTile(cc.ctype, cc.cname)) {
-				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT, TILE_HEIGHT);
+				graphicsContext.drawImage(imgMap.get(cc.ctype + cc.cname), x, y, TILE_HEIGHT * 0.9, TILE_HEIGHT * 0.9);
 			}
 		}
 	}
@@ -456,5 +522,23 @@ public class JFXMainApplication extends Application {
 		if (w > 0) CANVAS_WIDTH = (int) w;
 		if (h > 0) CANVAS_HEIGHT = (int) h;
 		TILE_HEIGHT = h / 9.2;
+	}
+	
+	public void setOpt(CommCard c) {
+		HashSet<String> op = new HashSet<>();
+		for (String s : c.tags) {
+			switch (s) {
+			case "moveav":
+			case "atkav":
+			case "acteffav":
+				op.add(s);
+				break;
+			}
+			System.out.println(s);
+		}
+		opt = op.toArray(new String[0]);
+		if (opt.length > 0) {
+			System.out.println("new opt");
+		}
 	}
 }

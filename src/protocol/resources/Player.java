@@ -3,7 +3,7 @@ package protocol.resources;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Player implements Serializable, Cloneable {
+public abstract class Player implements Serializable, Cloneable, Runnable {
 	private static final long serialVersionUID = 3416634269924164243L;
 	public String pname;
 	public ArrayList<String> inputQueue = new ArrayList<>();

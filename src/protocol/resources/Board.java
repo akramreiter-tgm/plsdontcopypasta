@@ -477,7 +477,7 @@ public class Board implements Serializable, Cloneable {
 	 * @return Board
 	 */
 	public Board clone() {
-		Board b = new Board(new Player[] {new Player(playerNames[0]),new Player(playerNames[1])});
+		Board b = new Board(new Player[] {players[0], players[1]});
 		for (String s : content.keySet()) {
 			b.content.put(s, this.content.get(s).clone());
 		}
