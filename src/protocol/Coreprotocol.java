@@ -32,6 +32,9 @@ public class Coreprotocol implements Runnable{
 			cp.inputQueue.clear(); //prevents queueing up input before turn start
 			startTime = System.currentTimeMillis();
 			turn: while (true) {
+				for (Player p:players) {
+					p.commQueue.add(new CommBoard(bd, null, p.pname));
+				}
 				String ci = "";
 				System.out.println("current player: " + cp.pname);
 				while (ci.length() == 0) {
@@ -72,6 +75,7 @@ public class Coreprotocol implements Runnable{
 					}
 					if (ci.startsWith("evolve")) {
 						bd.evolve.evolve(cp,ci.substring(6,8).toUpperCase(),Integer.parseInt(ci.substring(8)));
+						continue turn;
 					}
 					if (ci.startsWith("end")) {
 						bd.triggerExecutableEffects(cp, "turnend", new String[] {});
@@ -133,11 +137,9 @@ public class Coreprotocol implements Runnable{
 						} else if (ci.startsWith("move")) {
 							cp.commQueue.add(new CommMsg("cardsboard", bd.movement.getMoveOrAttackAvCreatures(cp.pname))); //TODO add activateable cards on board
 						}
+						continue turn;
 					}
 					if (ci.startsWith("surr")) System.exit(0); //TODO handle the situation of a player surrendering properly instead of just quitting
-					for (Player p:players) {
-						p.commQueue.add(new CommBoard(bd, null, p.pname));
-					}
 				}catch (Exception e) {
 					e.printStackTrace();
 				}

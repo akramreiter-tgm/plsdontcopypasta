@@ -9,6 +9,7 @@ import java.util.HashSet;
 
 import javax.xml.soap.SAAJResult;
 
+import deckBuilding.CardFactory;
 import deckBuilding.hero.BasicHero;
 import protocol.actions.Activation;
 import protocol.actions.Evolve;
@@ -115,6 +116,23 @@ public class Board implements Serializable, Cloneable {
 		deck.put(playerNames[1], new Deck());
 		sidedeck.put(playerNames[0], new CardList());
 		sidedeck.put(playerNames[1], new CardList());
+		try {
+			for (Player p : player) {
+				if (p.deck != null) {
+					for (String s : p.deck.deck) {
+						Card c = CardFactory.createCard(s, p.pname);
+						deck.get(p.pname).addToDeck(c);
+					}
+					deck.get(p.pname).shuffle();
+					for (String s : p.deck.side) {
+						Card c = CardFactory.createCard(s, p.pname);
+						sidedeck.get(p.pname).add(c);
+					}
+				}
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 		System.out.println(getHeroLoc(playerNames[0]) + "," + getCreature("E1").getCType());
 	}
 	

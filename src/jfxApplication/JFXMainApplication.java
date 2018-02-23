@@ -28,7 +28,7 @@ import launch.tests.BoardTest01;
 public class JFXMainApplication extends Application {
 	Integer size = 1000;
 	public HashMap<String,Image> imgMap = new HashMap<>();
-	public final BoardListener blisten = new BoardListener (this, "r");
+	private BoardListener blisten;
 	
 	static int CANVAS_WIDTH = 1315;
     static int CANVAS_HEIGHT = 720;
@@ -46,12 +46,14 @@ public class JFXMainApplication extends Application {
 	private double yopt = -1;
 	private String[] opt = new String[0];
 	private Scene boardScene;
+	public Stage stage;
 	public boolean targMode = false;
 
     @Override
     public void start(final Stage primaryStage) {
         //Thread bl = new Thread(blisten);
         //bl.start();
+    	stage = primaryStage;
         primaryStage.setFullScreenExitHint("");
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         loadGeneralTiles();
@@ -61,7 +63,6 @@ public class JFXMainApplication extends Application {
         root.getChildren().add(vBox);
         boardScene = new Scene(root, CANVAS_WIDTH, CANVAS_HEIGHT);
         primaryStage.setTitle("NullPointer");
-        primaryStage.setScene(boardScene);
         //primaryStage.setFullScreen(true);
         primaryStage.show();
         boardScene.setOnMouseReleased(new EventHandler<MouseEvent>() {
@@ -158,7 +159,7 @@ public class JFXMainApplication extends Application {
 							System.out.println(opt[index]);
 							blisten.amendNextMsg(opt[index]);
 						}catch (Exception e) {
-							// TODO: handle exception
+							e.printStackTrace();
 						}
 					}
 					yopt = -1;
@@ -282,6 +283,8 @@ public class JFXMainApplication extends Application {
         graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         primaryStage.getIcons().add(imgMap.get("fog"));
         BoardTest01.jfxapp = this;
+        primaryStage.setScene(boardScene);
+        primaryStage.show();
     }
 	
 	public boolean loadTile(String cat, String name) {
@@ -340,6 +343,7 @@ public class JFXMainApplication extends Application {
 		} else {
 			cb = commBoard;
 		}
+		if (stage.getScene() != boardScene) return;
 		graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		for (String s : cb.board.keySet()) {
 			try {
@@ -494,7 +498,7 @@ public class JFXMainApplication extends Application {
 	}
 	
 	/**
-	 * grays out board draws by drawBoard(CommBoard).
+	 * grays out board drawn by drawBoard(CommBoard).
 	 * Draws cards in CommCard[] cl over it.
 	 * @param cl
 	 */

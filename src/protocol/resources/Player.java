@@ -3,9 +3,12 @@ package protocol.resources;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import communication.DeckResource;
+
 public abstract class Player implements Serializable, Cloneable, Runnable {
 	private static final long serialVersionUID = 3416634269924164243L;
 	public String pname;
+	public DeckResource deck;
 	public ArrayList<String> inputQueue = new ArrayList<>();
 	public ArrayList<Object> commQueue = new ArrayList<>();
 	

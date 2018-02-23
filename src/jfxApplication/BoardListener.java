@@ -16,6 +16,7 @@ import org.json.simple.parser.*;
 
 import communication.CommBoard;
 import communication.CommMsg;
+import communication.DeckResource;
 
 public class BoardListener implements Runnable {
 	private String nextmsg = "";
@@ -24,20 +25,14 @@ public class BoardListener implements Runnable {
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private JFXMainApplication jfxapp;
-	public static String iadr = "localhost";
+	private String iadr = "localhost", name, deck;
 	
-	public BoardListener(JFXMainApplication app, String name) {
+	public BoardListener(JFXMainApplication app, String name, String adr, String deck) {
 		jfxapp = app;
-		try {
-			initSocket(iadr);
-			ois = new ObjectInputStream(endpoint.getInputStream());
-			oos = new ObjectOutputStream(endpoint.getOutputStream());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		iadr = adr;
+		this.name = name;
+		this.deck = deck;
 	}
-	
-	
 	
 	@Override
 	public void run() {
@@ -62,13 +57,45 @@ public class BoardListener implements Runnable {
 		}
 	}
 	
+	public void connect() {
+		try {
+			for (int i : new int[25]) {
+				try {
+					JSONParser jp = new JSONParser();
+					JSONObject jo = (JSONObject) jp.parse(new FileReader(new File("config\\network.json")));
+					InetAddress iad = InetAddress.getByName(iadr);
+					System.out.println("port:" + jo.get("port"));
+					Long l = (Long) jo.get("port");
+					System.out.println("connecting to " + iad.toString());
+					endpoint = new Socket(iad, l.intValue());
+					System.out.println("connection successful");
+					ois = new ObjectInputStream(endpoint.getInputStream());
+					oos = new ObjectOutputStream(endpoint.getOutputStream());
+					System.out.println("streams created");
+					break;
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					Thread.sleep(200);
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+			System.out.println("socket connected");
+			oos.writeUTF(name);
+			System.out.println("output/input streams gotten");
+			DeckResource dr = new DeckResource(deck);
+			System.out.println("deckresource created");
+			oos.writeObject(dr);
+			System.out.println("deckresource sent");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void initSocket(String iaddress) throws Exception {
-		JSONParser jp = new JSONParser();
-		JSONObject jo = (JSONObject) jp.parse(new FileReader(new File("config\\network.json")));
-		InetAddress iad = InetAddress.getByName(iaddress);
-		System.out.println("port:" + jo.get("port"));
-		Long l = (Long) jo.get("port");
-		endpoint = new Socket(iad, l.intValue());
+		
 	}
 	
 	/**
@@ -91,7 +118,7 @@ public class BoardListener implements Runnable {
 				if (alone != null) {
 					nextmsg += "exec"+alone;
 					try {
-						oos.writeChars(nextmsg);
+						oos.writeUTF(nextmsg);
 						System.out.println("sent message: " + nextmsg);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -106,7 +133,7 @@ public class BoardListener implements Runnable {
 			if (opt.startsWith("board")) {
 				nextmsg += opt.substring(5);
 				try {
-					oos.writeChars(nextmsg);
+					oos.writeUTF(nextmsg);
 					System.out.println("sent message: " + nextmsg);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
